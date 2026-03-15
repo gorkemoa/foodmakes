@@ -1,7 +1,9 @@
 import SwiftUI
+import Translation
 
 struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
+    @State private var needsDownload: Set<String> = []
     private var lm: LanguageManager { LanguageManager.shared }
 
     init(repository: MealRepository) {
@@ -42,14 +44,11 @@ struct SettingsView: View {
     // MARK: - App Header Card
     private var appHeader: some View {
         HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.warmOrange)
-                    .frame(width: 52, height: 52)
-                Image(systemName: "fork.knife.circle.fill")
-                    .font(.system(size: 26))
-                    .foregroundStyle(.white)
-            }
+            Image("AppLogo")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 52, height: 52)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 3) {
                 Text("FoodMakes")
                     .font(.system(size: 17, weight: .bold))
@@ -70,37 +69,57 @@ struct SettingsView: View {
         SettingsSection(title: lm.t.language, icon: "globe") {
             VStack(spacing: 0) {
                 ForEach(Array(AppLanguage.allCases.enumerated()), id: \.1.rawValue) { idx, lang in
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                            lm.current = lang
-                        }
-                    } label: {
-                        HStack(spacing: 14) {
-                            Text(lang.flag)
-                                .font(.system(size: 22))
-                                .frame(width: 34, height: 34)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(lang.displayName)
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundStyle(Color.textPrimary)
-                                Text(lm.t.languageSub)
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.textSecondary)
-                                    .opacity(lm.current == lang ? 1 : 0)
+                    HStack(spacing: 0) {
+                        // Language selection button
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                lm.current = lang
                             }
-                            Spacer()
-                            if lm.current == lang {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(Color.warmOrange)
-                                    .transition(.scale.combined(with: .opacity))
+                        } label: {
+                            HStack(spacing: 14) {
+                                Text(lang.flag)
+                                    .font(.system(size: 22))
+                                    .frame(width: 34, height: 34)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(lang.displayName)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundStyle(Color.textPrimary)
+                                    Text(lm.t.languageSub)
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(Color.textSecondary)
+                                        .opacity(lm.current == lang ? 1 : 0)
+                                }
+                                Spacer()
+                                if lm.current == lang {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(Color.warmOrange)
+                                        .transition(.scale.combined(with: .opacity))
+                                }
                             }
+                            .padding(.leading, 16)
+                            .padding(.trailing, lang != .english && needsDownload.contains(lang.rawValue) ? 8 : 16)
+                            .padding(.vertical, 13)
+                            .contentShape(Rectangle())
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 13)
-                        .contentShape(Rectangle())
+                        .buttonStyle(.plain)
+
+                        // Download button — only shown when pack isn’t installed
+                        if lang != .english && needsDownload.contains(lang.rawValue) {
+                            Button {
+                                TranslationDownloadManager.shared.forcePrompt(for: lang.rawValue)
+                            } label: {
+                                Image(systemName: "icloud.and.arrow.down")
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(.blue)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.trailing, 8)
+                            .transition(.scale.combined(with: .opacity))
+                        }
                     }
-                    .buttonStyle(.plain)
                     if idx < AppLanguage.allCases.count - 1 {
                         Divider().padding(.leading, 64)
                     }
@@ -108,7 +127,26 @@ struct SettingsView: View {
             }
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            // Re-check badges when app opens or a download completes
+            .task(id: TranslationDownloadManager.shared.downloadRevision) {
+                await checkLanguageAvailability()
+            }
         }
+    }
+
+    private func checkLanguageAvailability() async {
+        let availability = LanguageAvailability()
+        var toDownload: Set<String> = []
+        for lang in AppLanguage.allCases where lang != .english {
+            let status = await availability.status(
+                from: Locale.Language(identifier: "en"),
+                to: Locale.Language(identifier: lang.rawValue)
+            )
+            if case .supported = status {
+                toDownload.insert(lang.rawValue)
+            }
+        }
+        needsDownload = toDownload
     }
 
     // MARK: - Data Management Section

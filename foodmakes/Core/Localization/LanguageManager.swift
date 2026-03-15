@@ -3,25 +3,31 @@ import Observation
 
 // MARK: - Supported Languages
 enum AppLanguage: String, CaseIterable, Identifiable {
-    case english = "en"
-    case turkish = "tr"
-    case spanish = "es"
+    case english  = "en"
+    case turkish  = "tr"
+    case french   = "fr"
+    case spanish  = "es"
+    case italian  = "it"
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .english: return "English"
-        case .turkish: return "Türkçe"
-        case .spanish: return "Español"
+        case .english:  return "English"
+        case .turkish:  return "Türkçe"
+        case .french:   return "Français"
+        case .spanish:  return "Español"
+        case .italian:  return "Italiano"
         }
     }
 
     var flag: String {
         switch self {
-        case .english: return "🇬🇧"
-        case .turkish: return "🇹🇷"
-        case .spanish: return "🇪🇸"
+        case .english:  return "🇬🇧"
+        case .turkish:  return "🇹🇷"
+        case .french:   return "🇫🇷"
+        case .spanish:  return "🇪🇸"
+        case .italian:  return "🇮🇹"
         }
     }
 }
@@ -158,9 +164,11 @@ final class LanguageManager {
 // MARK: - String Tables
 private func translations(for lang: AppLanguage) -> Translations {
     switch lang {
-    case .english: return englishTranslations
-    case .turkish: return turkishTranslations
-    case .spanish: return spanishTranslations
+    case .english:  return englishTranslations
+    case .turkish:  return turkishTranslations
+    case .french:   return frenchTranslations
+    case .spanish:  return spanishTranslations
+    case .italian:  return italianTranslations
     }
 }
 
@@ -378,4 +386,148 @@ private let spanishTranslations = Translations(
     addedToLiked:           "Añadido a Me Gusta",
     goToDetail:             "Ver detalle",
     categoryOther:          "Otros"
+)
+
+private let frenchTranslations = Translations(
+    appTagline:             "glisser à droite pour garder  ·  à gauche pour passer",
+    mealsLeft:              "restants",
+    skip:                   "Passer",
+    save:                   "Garder",
+    tryStamp:               "ESSAYER",
+    nopeStamp:              "NON",
+    savedToTryList:         "Ajouté à la liste",
+    dislikedLabel:          "Pas aimé",
+    ingredients:            "Ingrédients",
+    howToCook:              "Comment cuisiner",
+    loadingRecipe:          "Chargement de la recette…",
+    watchAndRead:           "Voir & Lire",
+    watchOnYoutube:         "Voir sur YouTube",
+    originalRecipe:         "Recette originale",
+    viewFullRecipe:         "Voir la recette complète",
+    moreStepsFormat:        "+%d étapes",
+    stepsCountFormat:       "%d étapes",
+    ingredientsCountFormat: "%d ingrédients",
+    tryListTitle:           "J'aime",
+    searchSavedPrompt:      "Rechercher mes favoris…",
+    nothingSavedYet:        "Rien aimé pour l'instant",
+    swipeRightHint:         "Glissez à droite pour ajouter ici.",
+    dislikedTitle:          "Pas aimé",
+    searchDislikedPrompt:   "Rechercher les plats rejetés…",
+    noRejectedMeals:        "Aucun plat rejeté",
+    swipeLeftHint:          "Glissez à gauche pour déplacer ici.",
+    settingsTitle:          "Réglages",
+    appSubtitle:            "Découvrez votre prochain plat préféré",
+    dataManagement:         "Gestion des données",
+    clearTryList:           "Vider la liste",
+    clearTryListSub:        "Supprimer tous les plats sauvegardés",
+    clearDisliked:          "Vider les non-aimés",
+    clearDislikedSub:       "Supprimer tous les plats rejetés",
+    resetSwipeHistory:      "Réinitialiser l'historique",
+    resetSwipeHistorySub:   "Les plats glissés réapparaîtront",
+    resetEverything:        "Tout réinitialiser",
+    resetEverythingSub:     "Supprime toutes les données",
+    about:                  "À propos",
+    version:                "Version",
+    poweredBy:              "Propulsé par TheMealDB",
+    clearAll:               "Tout effacer",
+    resetHistory:           "Réinitialiser",
+    resetAllData:           "Tout réinitialiser",
+    clearTryConfirm:        "Vider la liste ?",
+    clearDislikedConfirm:   "Vider les non-aimés ?",
+    resetSwipeConfirm:      "Réinitialiser l'historique ?",
+    resetAllConfirm:        "Réinitialiser toutes les données ?",
+    toastSwipeCleared:      "Historique effacé ✓",
+    toastTryCleared:        "Liste vidée ✓",
+    toastDislikedCleared:   "Non-aimés effacés ✓",
+    toastAllReset:          "Toutes les données réinitialisées ✓",
+    language:               "Langue",
+    languageSub:            "Langue d'affichage",
+    tabDiscover:            "Découvrir",
+    tabTryList:             "J'aime",
+    tabDisliked:            "Pas aimé",
+    tabSettings:            "Réglages",
+    rateMeal:               "Évaluer ce plat",
+    yourRating:             "Votre note",
+    overallScore:           "Général",
+    tasteScore:             "Goût",
+    wouldEatAgain:          "Vous remangeriez ?",
+    wouldRecommend:         "Vous recommanderiez ?",
+    saveRating:             "Sauvegarder la note",
+    editRating:             "Modifier la note",
+    sheetDismissHint:       "Appuyez sur × pour fermer · ou glissez vers le bas",
+    addedToLiked:           "Ajouté aux favoris",
+    goToDetail:             "Voir le détail",
+    categoryOther:          "Autre"
+)
+
+private let italianTranslations = Translations(
+    appTagline:             "scorri a destra per salvare  ·  a sinistra per saltare",
+    mealsLeft:              "rimanenti",
+    skip:                   "Salta",
+    save:                   "Salva",
+    tryStamp:               "PROVA",
+    nopeStamp:              "NO",
+    savedToTryList:         "Aggiunto alla lista",
+    dislikedLabel:          "Non mi piace",
+    ingredients:            "Ingredienti",
+    howToCook:              "Come cucinare",
+    loadingRecipe:          "Caricamento ricetta…",
+    watchAndRead:           "Guarda & Leggi",
+    watchOnYoutube:         "Guarda su YouTube",
+    originalRecipe:         "Ricetta originale",
+    viewFullRecipe:         "Vedi ricetta completa",
+    moreStepsFormat:        "+%d altri passaggi",
+    stepsCountFormat:       "%d passaggi",
+    ingredientsCountFormat: "%d ingredienti",
+    tryListTitle:           "Mi piace",
+    searchSavedPrompt:      "Cerca i preferiti…",
+    nothingSavedYet:        "Nessun preferito ancora",
+    swipeRightHint:         "Scorri a destra per aggiungere qui.",
+    dislikedTitle:          "Non mi piace",
+    searchDislikedPrompt:   "Cerca pasti rifiutati…",
+    noRejectedMeals:        "Nessun pasto rifiutato",
+    swipeLeftHint:          "Scorri a sinistra per spostare qui.",
+    settingsTitle:          "Impostazioni",
+    appSubtitle:            "Scopri il tuo prossimo pasto preferito",
+    dataManagement:         "Gestione dati",
+    clearTryList:           "Svuota lista",
+    clearTryListSub:        "Rimuovi tutti i pasti salvati",
+    clearDisliked:          "Svuota non mi piace",
+    clearDislikedSub:       "Rimuovi tutti i pasti rifiutati",
+    resetSwipeHistory:      "Reimposta la cronologia",
+    resetSwipeHistorySub:   "I pasti scorretti riappariranno",
+    resetEverything:        "Reimposta tutto",
+    resetEverythingSub:     "Cancella tutti i dati",
+    about:                  "Informazioni",
+    version:                "Versione",
+    poweredBy:              "Offerto da TheMealDB",
+    clearAll:               "Cancella tutto",
+    resetHistory:           "Reimposta cronologia",
+    resetAllData:           "Reimposta tutto",
+    clearTryConfirm:        "Svuotare la lista?",
+    clearDislikedConfirm:   "Svuotare non mi piace?",
+    resetSwipeConfirm:      "Reimpostare la cronologia?",
+    resetAllConfirm:        "Reimpostare tutti i dati?",
+    toastSwipeCleared:      "Cronologia cancellata ✓",
+    toastTryCleared:        "Lista svuotata ✓",
+    toastDislikedCleared:   "Non mi piace svuotato ✓",
+    toastAllReset:          "Tutti i dati reimpostati ✓",
+    language:               "Lingua",
+    languageSub:            "Lingua dell'app",
+    tabDiscover:            "Scopri",
+    tabTryList:             "Mi piace",
+    tabDisliked:            "Non mi piace",
+    tabSettings:            "Impostazioni",
+    rateMeal:               "Valuta questo pasto",
+    yourRating:             "La tua valutazione",
+    overallScore:           "Generale",
+    tasteScore:             "Gusto",
+    wouldEatAgain:          "Lo mangeresti di nuovo?",
+    wouldRecommend:         "Lo consiglieresti?",
+    saveRating:             "Salva valutazione",
+    editRating:             "Modifica valutazione",
+    sheetDismissHint:       "Tocca × per chiudere · o scorri verso il basso",
+    addedToLiked:           "Aggiunto ai preferiti",
+    goToDetail:             "Vedi dettaglio",
+    categoryOther:          "Altro"
 )

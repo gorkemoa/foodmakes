@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Translation
 
 // MARK: - Root Tab View
 struct RootTabView: View {
@@ -48,5 +49,9 @@ struct RootTabView: View {
                 .tag(3)
         }
         .tint(.warmOrange)
+        // Single download dialog for the whole app — driven by TranslationDownloadManager
+        .translationTask(TranslationDownloadManager.shared.pendingConfig) { _ in
+            await MainActor.run { TranslationDownloadManager.shared.onDownloadCompleted() }
+        }
     }
 }
