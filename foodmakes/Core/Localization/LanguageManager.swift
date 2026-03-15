@@ -47,6 +47,8 @@ struct Translations {
     let originalRecipe: String
     let viewFullRecipe: String
     let moreStepsFormat: String  // "%d more steps"
+    let stepsCountFormat: String  // "%d steps"
+    let ingredientsCountFormat: String  // "%d ingredients"
 
     // TryList
     let tryListTitle: String
@@ -98,6 +100,26 @@ struct Translations {
     let tabTryList: String
     let tabDisliked: String
     let tabSettings: String
+
+    // Rating
+    let rateMeal: String
+    let yourRating: String
+    let overallScore: String
+    let tasteScore: String
+    let wouldEatAgain: String
+    let wouldRecommend: String
+    let saveRating: String
+    let editRating: String
+
+    // Sheet tutorial
+    let sheetDismissHint: String
+
+    // Swipe toast
+    let addedToLiked: String
+    let goToDetail: String
+
+    // Category grouping
+    let categoryOther: String
 }
 
 // MARK: - Language Manager
@@ -111,6 +133,8 @@ final class LanguageManager {
     var current: AppLanguage {
         didSet {
             UserDefaults.standard.set(current.rawValue, forKey: userDefaultsKey)
+            // Clear translation cache so new language fetches fresh translations
+            Task { await TranslationService.shared.clearCache() }
         }
     }
 
@@ -157,10 +181,12 @@ private let englishTranslations = Translations(
     originalRecipe:         "Original Recipe",
     viewFullRecipe:         "View Full Recipe",
     moreStepsFormat:        "+%d more steps",
-    tryListTitle:           "Try List",
-    searchSavedPrompt:      "Search saved meals…",
-    nothingSavedYet:        "Nothing saved yet",
-    swipeRightHint:         "Swipe right on a meal to save it here.",
+    stepsCountFormat:       "%d steps",
+    ingredientsCountFormat: "%d ingredients",
+    tryListTitle:           "Liked",
+    searchSavedPrompt:      "Search liked meals…",
+    nothingSavedYet:        "Nothing liked yet",
+    swipeRightHint:         "Swipe right on a meal to add it here.",
     dislikedTitle:          "Disliked",
     searchDislikedPrompt:   "Search disliked meals…",
     noRejectedMeals:        "No rejected meals",
@@ -193,9 +219,21 @@ private let englishTranslations = Translations(
     language:               "Language",
     languageSub:            "App display language",
     tabDiscover:            "Discover",
-    tabTryList:             "Try List",
+    tabTryList:             "Liked",
     tabDisliked:            "Disliked",
-    tabSettings:            "Settings"
+    tabSettings:            "Settings",
+    rateMeal:               "Rate this meal",
+    yourRating:             "Your Rating",
+    overallScore:           "Overall",
+    tasteScore:             "Taste",
+    wouldEatAgain:          "Would eat again?",
+    wouldRecommend:         "Would recommend?",
+    saveRating:             "Save Rating",
+    editRating:             "Edit Rating",
+    sheetDismissHint:       "Tap × to close · or swipe down",
+    addedToLiked:           "Added to Liked",
+    goToDetail:             "View",
+    categoryOther:          "Other"
 )
 
 private let turkishTranslations = Translations(
@@ -215,12 +253,14 @@ private let turkishTranslations = Translations(
     originalRecipe:         "Orijinal Tarif",
     viewFullRecipe:         "Tam Tarifi Gör",
     moreStepsFormat:        "+%d adım daha",
-    tryListTitle:           "Dene Listesi",
-    searchSavedPrompt:      "Kaydedilen yemek ara…",
-    nothingSavedYet:        "Henüz kaydedilmedi",
-    swipeRightHint:         "Bir yemeği buraya kaydetmek için sağa kaydırın.",
-    dislikedTitle:          "Beğenilmeyenler",
-    searchDislikedPrompt:   "Beğenilmeyen yemek ara…",
+    stepsCountFormat:       "%d adım",
+    ingredientsCountFormat: "%d malzeme",
+    tryListTitle:           "Beğendiklerim",
+    searchSavedPrompt:      "Beğenilen yemek ara…",
+    nothingSavedYet:        "Henüz beğenilmedi",
+    swipeRightHint:         "Bir yemeği buraya eklemek için sağa kaydırın.",
+    dislikedTitle:          "Beğenmediklerim",
+    searchDislikedPrompt:   "Beğenmediklerim içinde ara…",
     noRejectedMeals:        "Reddedilen yemek yok",
     swipeLeftHint:          "Sola kaydırdığınız yemekler buraya gelir.",
     settingsTitle:          "Ayarlar",
@@ -251,9 +291,21 @@ private let turkishTranslations = Translations(
     language:               "Dil",
     languageSub:            "Uygulama görüntüleme dili",
     tabDiscover:            "Keşfet",
-    tabTryList:             "Dene Listesi",
-    tabDisliked:            "Beğenilmeyenler",
-    tabSettings:            "Ayarlar"
+    tabTryList:             "Beğendiklerim",
+    tabDisliked:            "Beğenmediklerim",
+    tabSettings:            "Ayarlar",
+    rateMeal:               "Bu yemeği puanla",
+    yourRating:             "Puanınız",
+    overallScore:           "Genel",
+    tasteScore:             "Lezzet",
+    wouldEatAgain:          "Tekrar yer misin?",
+    wouldRecommend:         "Önerir misin?",
+    saveRating:             "Puanı Kaydet",
+    editRating:             "Puanı Düzenle",
+    sheetDismissHint:       "× ile kapat · veya aşağı kaydır",
+    addedToLiked:           "Beğenilenlere eklendi",
+    goToDetail:             "Detaya git",
+    categoryOther:          "Diğer"
 )
 
 private let spanishTranslations = Translations(
@@ -273,10 +325,12 @@ private let spanishTranslations = Translations(
     originalRecipe:         "Receta Original",
     viewFullRecipe:         "Ver Receta Completa",
     moreStepsFormat:        "+%d pasos más",
-    tryListTitle:           "Lista de Prueba",
-    searchSavedPrompt:      "Buscar comidas guardadas…",
-    nothingSavedYet:        "Nada guardado aún",
-    swipeRightHint:         "Desliza a la derecha para guardar una comida.",
+    stepsCountFormat:       "%d pasos",
+    ingredientsCountFormat: "%d ingredientes",
+    tryListTitle:           "Me Gusta",
+    searchSavedPrompt:      "Buscar favoritas…",
+    nothingSavedYet:        "Nada marcado aún",
+    swipeRightHint:         "Desliza a la derecha para añadirla aquí.",
     dislikedTitle:          "No Me Gusta",
     searchDislikedPrompt:   "Buscar comidas rechazadas…",
     noRejectedMeals:        "Sin comidas rechazadas",
@@ -309,7 +363,19 @@ private let spanishTranslations = Translations(
     language:               "Idioma",
     languageSub:            "Idioma de la aplicación",
     tabDiscover:            "Descubrir",
-    tabTryList:             "Lista de Prueba",
+    tabTryList:             "Me Gusta",
     tabDisliked:            "No Me Gusta",
-    tabSettings:            "Ajustes"
+    tabSettings:            "Ajustes",
+    rateMeal:               "Califica esta comida",
+    yourRating:             "Tu calificación",
+    overallScore:           "General",
+    tasteScore:             "Sabor",
+    wouldEatAgain:          "¿Lo comerías de nuevo?",
+    wouldRecommend:         "¿Lo recomendarías?",
+    saveRating:             "Guardar calificación",
+    editRating:             "Editar calificación",
+    sheetDismissHint:       "Toca × para cerrar · o desliza abajo",
+    addedToLiked:           "Añadido a Me Gusta",
+    goToDetail:             "Ver detalle",
+    categoryOther:          "Otros"
 )

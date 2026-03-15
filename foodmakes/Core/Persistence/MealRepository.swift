@@ -98,11 +98,55 @@ final class MealRepository {
         try context.save()
     }
 
+    // MARK: - Ratings
+
+    func saveRating(mealId: String, mealName: String, thumbnailURL: String?,
+                    overallScore: Int, tasteScore: Int,
+                    wouldEatAgain: Bool, wouldRecommend: Bool) throws {
+        let existing = try fetchRating(mealId: mealId)
+        if let r = existing {
+            r.overallScore = overallScore
+            r.tasteScore = tasteScore
+            r.wouldEatAgain = wouldEatAgain
+            r.wouldRecommend = wouldRecommend
+            r.ratedAt = .now
+        } else {
+            context.insert(PersistedMealRating(
+                mealId: mealId, mealName: mealName, thumbnailURL: thumbnailURL,
+                overallScore: overallScore, tasteScore: tasteScore,
+                wouldEatAgain: wouldEatAgain, wouldRecommend: wouldRecommend))
+        }
+        try context.save()
+    }
+
+    func fetchRating(mealId: String) throws -> PersistedMealRating? {
+        try context.fetch(
+            FetchDescriptor<PersistedMealRating>(predicate: #Predicate { $0.mealId == mealId })
+        ).first
+    }
+
+    func hasRating(mealId: String) -> Bool {
+        let desc = FetchDescriptor<PersistedMealRating>(predicate: #Predicate { $0.mealId == mealId })
+        return (try? context.fetchCount(desc)) ?? 0 > 0
+    }
+
+    func fetchAllRatings() throws -> [PersistedMealRating] {
+        try context.fetch(FetchDescriptor<PersistedMealRating>(
+            sortBy: [SortDescriptor(\.ratedAt, order: .reverse)]
+        ))
+    }
+
+    func clearRatings() throws {
+        try context.fetch(FetchDescriptor<PersistedMealRating>()).forEach { context.delete($0) }
+        try context.save()
+    }
+
     // MARK: - Reset All
 
     func resetAll() throws {
         try clearTryList()
         try clearDisliked()
         try clearSwipeHistory()
+        try clearRatings()
     }
 }

@@ -6,39 +6,99 @@ struct MealDetailSheet: View {
     private let repository: MealRepository
     @Environment(\.dismiss) private var dismiss
     @State private var showFullDetail = false
-
-    // Staggered entrance state
-    @State private var headerVisible  = false
-    @State private var chipsVisible   = false
-    @State private var dividerVisible = false
-    @State private var ingrVisible    = false
-    @State private var stepsVisible   = false
-    @State private var ctaVisible     = false
-
     @State private var heartScale: CGFloat = 1
+    @AppStorage("fm_sheet_tutorial_seen") private var tutorialSeen: Bool = false
+    @State private var showTutorial = false
 
     init(meal: Meal, repository: MealRepository) {
         _viewModel = State(initialValue: MealDetailViewModel(meal: meal, repository: repository))
         self.repository = repository
     }
 
+    private var lm: LanguageManager { LanguageManager.shared }
+
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    heroImage
-                    contentBody
+            VStack(spacing: 0) {
+                topActionStrip
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        heroImage
+                        contentBody
+                    }
                 }
             }
             .background(Color(.systemBackground))
+            .overlay(alignment: .top) {
+                if showTutorial {
+                    tutorialBanner
+                        .padding(.top, 64)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
             .navigationDestination(isPresented: $showFullDetail) {
                 MealDetailView(meal: viewModel.meal, repository: repository)
             }
         }
-        .task {
-            await viewModel.loadDetailIfNeeded()
-            animateIn()
+        .task { await viewModel.loadDetailIfNeeded() }
+        .onAppear {
+            guard !tutorialSeen else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { showTutorial = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                    withAnimation(.easeOut(duration: 0.35)) { showTutorial = false }
+                    tutorialSeen = true
+                }
+            }
         }
+    }
+
+    // MARK: - Top Action Strip
+    private var topActionStrip: some View {
+        HStack(spacing: 12) {
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(.label))
+                    .frame(width: 34, height: 34)
+                    .background(Color(.secondarySystemFill))
+                    .clipShape(Circle())
+            }
+            Spacer()
+            Button { showFullDetail = true } label: {
+                HStack(spacing: 6) {
+                    Text(lm.t.viewFullRecipe)
+                        .font(.system(size: 14, weight: .semibold))
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .background(Color.warmOrange)
+                .clipShape(Capsule())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: - Tutorial Banner
+    private var tutorialBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "arrow.down")
+                .font(.system(size: 11, weight: .bold))
+            Text(lm.t.sheetDismissHint)
+                .font(.system(size: 13, weight: .medium))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 9)
+        .background(Color(.label).opacity(0.82))
+        .clipShape(Capsule())
     }
 
     // MARK: - Hero Image
@@ -88,13 +148,12 @@ struct MealDetailSheet: View {
     // MARK: - Content
     private var contentBody: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Meal name
-            Text(viewModel.meal.name)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-                .opacity(headerVisible ? 1 : 0)
-                .offset(y: headerVisible ? 0 : 12)
+
+            // Meal name — always visible immediately
+            TranslatedText(original: viewModel.meal.name,
+                           font: .system(size: 24, weight: .bold, design: .rounded),
+                           color: Color.textPrimary,
+                           fixedVertical: true)
 
             // Area / ingredient count chips
             HStack(spacing: 8) {
@@ -103,56 +162,30 @@ struct MealDetailSheet: View {
                 }
                 SheetChip(
                     icon: "list.bullet",
-                    text: "\(viewModel.meal.ingredients.count) ingredients"
+                    text: String(format: lm.t.ingredientsCountFormat, viewModel.meal.ingredients.count)
                 )
             }
-            .opacity(chipsVisible ? 1 : 0)
-            .offset(y: chipsVisible ? 0 : 8)
 
-            // Divider
             Rectangle()
                 .fill(Color(.separator).opacity(0.45))
                 .frame(height: 1)
-                .opacity(dividerVisible ? 1 : 0)
 
-            // Ingredients
+            // Ingredients — always visible (data comes with the initial card)
             if !viewModel.meal.ingredients.isEmpty {
                 ingredientsSection
-                    .opacity(ingrVisible ? 1 : 0)
-                    .offset(y: ingrVisible ? 0 : 10)
             }
 
-            // Instructions
+            // Instructions — animate in when they arrive from network
             if let instructions = viewModel.meal.instructions, !instructions.isEmpty {
                 instructionsSection(instructions)
-                    .opacity(stepsVisible ? 1 : 0)
-                    .offset(y: stepsVisible ? 0 : 10)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             } else if viewModel.isLoadingDetail {
                 loadingRow
-                    .opacity(ingrVisible ? 1 : 0)
             }
-
-            // View full recipe CTA
-            Button {
-                showFullDetail = true
-            } label: {
-                HStack(spacing: 8) {
-                    Text("View Full Recipe")
-                        .font(.system(size: 15, weight: .semibold))
-                    Image(systemName: "arrow.up.right")
-                        .font(.system(size: 13, weight: .semibold))
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(Color.warmOrange)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .opacity(ctaVisible ? 1 : 0)
-            .offset(y: ctaVisible ? 0 : 8)
 
             Color.clear.frame(height: 24)
         }
+        .animation(.spring(response: 0.45, dampingFraction: 0.80), value: viewModel.meal.instructions != nil)
         .padding(.horizontal, 22)
         .padding(.top, 18)
     }
@@ -160,7 +193,7 @@ struct MealDetailSheet: View {
     // MARK: - Ingredients
     private var ingredientsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Ingredients")
+            Text(lm.t.ingredients)
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.textPrimary)
 
@@ -171,10 +204,10 @@ struct MealDetailSheet: View {
                             .fill(Color.warmOrange)
                             .frame(width: 4, height: 4)
                             .padding(.top, 6)
-                        Text(item.name)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.textPrimary)
-                            .fixedSize(horizontal: false, vertical: true)
+                        TranslatedText(original: item.name,
+                                       font: .system(size: 13, weight: .medium),
+                                       color: Color.textPrimary,
+                                       fixedVertical: true)
                         Spacer(minLength: 8)
                         Text(item.measure)
                             .font(.system(size: 12))
@@ -190,7 +223,7 @@ struct MealDetailSheet: View {
         }
     }
 
-    // MARK: - Instructions (brief, first 3 steps)
+    // MARK: - Instructions (first 3 steps preview)
     private func instructionsSection(_ raw: String) -> some View {
         let all = raw
             .components(separatedBy: .init(charactersIn: "\r\n."))
@@ -200,12 +233,12 @@ struct MealDetailSheet: View {
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("How to Cook")
+                Text(lm.t.howToCook)
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.textPrimary)
                 Spacer()
                 if all.count > 3 {
-                    Text("+\(all.count - 3) more steps")
+                    Text(String(format: lm.t.moreStepsFormat, all.count - 3))
                         .font(.system(size: 11))
                         .foregroundStyle(Color.warmOrange)
                 }
@@ -220,10 +253,10 @@ struct MealDetailSheet: View {
                             .frame(width: 22, height: 22)
                             .background(Color.warmOrange.opacity(0.10))
                             .clipShape(Circle())
-                        Text(step)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Color.textPrimary)
-                            .fixedSize(horizontal: false, vertical: true)
+                        TranslatedText(original: step,
+                                       font: .system(size: 13),
+                                       color: Color.textPrimary,
+                                       fixedVertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.top, 2)
                     }
@@ -238,7 +271,7 @@ struct MealDetailSheet: View {
     private var loadingRow: some View {
         HStack(spacing: 10) {
             ProgressView().tint(Color.warmOrange)
-            Text("Loading recipe…")
+            Text(lm.t.loadingRecipe)
                 .font(.system(size: 13))
                 .foregroundStyle(Color.textSecondary)
         }
@@ -246,17 +279,6 @@ struct MealDetailSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-    }
-
-    // MARK: - Staggered animation
-    private func animateIn() {
-        let spring = Animation.spring(response: 0.44, dampingFraction: 0.78)
-        withAnimation(spring.delay(0.05))  { headerVisible  = true }
-        withAnimation(spring.delay(0.12))  { chipsVisible   = true }
-        withAnimation(spring.delay(0.18))  { dividerVisible = true }
-        withAnimation(spring.delay(0.24))  { ingrVisible    = true }
-        withAnimation(spring.delay(0.34))  { stepsVisible   = true }
-        withAnimation(spring.delay(0.42))  { ctaVisible     = true }
     }
 }
 

@@ -71,7 +71,7 @@ final class HomeViewModel {
     private func persist(meal: Meal, direction: SwipeDirection) {
         do {
             try repository.recordSwipe(meal: meal, direction: direction)
-            if direction == .left {
+            if direction == .right {
                 try repository.addToTryList(meal: meal)
             } else {
                 try repository.addToDisliked(meal: meal)

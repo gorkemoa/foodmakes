@@ -15,7 +15,8 @@ struct foodmakesApp: App {
         let schema = Schema([
             PersistedTryMeal.self,
             PersistedDislikedMeal.self,
-            SwipedRecord.self
+            SwipedRecord.self,
+            PersistedMealRating.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {

@@ -31,8 +31,8 @@ struct IngredientItem: Identifiable, Hashable, Codable {
 
 // MARK: - Swipe Direction
 enum SwipeDirection {
-    case left   // Try List
-    case right  // Disliked
+    case left   // Disliked
+    case right  // Liked (Try List)
 }
 
 // MARK: - Meal List States

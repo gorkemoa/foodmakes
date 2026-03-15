@@ -4,8 +4,8 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @State private var showDetail = false
     @State private var selectedMeal: Meal?
-    @State private var sheetMeal: Meal?
-    @State private var showSheet = false
+    @State private var toastMeal: Meal?
+    @State private var showToast = false
     private var lm: LanguageManager { LanguageManager.shared }
 
     init(viewModel: HomeViewModel) {
@@ -34,14 +34,33 @@ struct HomeView: View {
                     MealDetailView(meal: meal, repository: viewModel.repository)
                 }
             }
-            .sheet(isPresented: $showSheet) {
-                if let meal = sheetMeal {
-                    MealDetailSheet(meal: meal, repository: viewModel.repository)
-                        .presentationDetents([.medium, .large])
-                        .presentationDragIndicator(.visible)
-                        .presentationCornerRadius(28)
+        }
+        .overlay(alignment: .bottom) {
+            if showToast, let meal = toastMeal {
+                SwipeToast(
+                    mealName: meal.name,
+                    addedText: lm.t.addedToLiked,
+                    goText: lm.t.goToDetail
+                ) {
+                    selectedMeal = meal
+                    showToast = false
+                    showDetail = true
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(99)
             }
+        }
+        .animation(.spring(response: 0.38, dampingFraction: 0.78), value: showToast)
+    }
+
+    // MARK: - Toast helper
+    private func triggerToast(for meal: Meal) {
+        toastMeal = meal
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            withAnimation { showToast = false }
         }
     }
 
@@ -103,10 +122,7 @@ struct HomeView: View {
                             onSwipeLeft:  { viewModel.swipeLeft(meal: meal) },
                             onSwipeRight: {
                                 viewModel.swipeRight(meal: meal)
-                                sheetMeal = meal
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
-                                    showSheet = true
-                                }
+                                triggerToast(for: meal)
                             },
                             onTap: {
                                 selectedMeal = meal
@@ -157,14 +173,11 @@ struct HomeView: View {
                     showDetail = true
                 }
                 Spacer()
-                // Save + sheet
+                // Save
                 VStack(spacing: 6) {
                     DeckButton(icon: "heart.fill", color: .tryGreen, size: 58) {
                         viewModel.swipeRight(meal: topMeal)
-                        sheetMeal = topMeal
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
-                            showSheet = true
-                        }
+                        triggerToast(for: topMeal)
                     }
                     Text(lm.t.save)
                         .font(.system(size: 10, weight: .medium))
@@ -202,6 +215,54 @@ private struct DeckButton: View {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Swipe Toast
+private struct SwipeToast: View {
+    let mealName: String
+    let addedText: String
+    let goText: String
+    let onGo: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.tryGreen)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(addedText)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(.label))
+                Text(mealName)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.textSecondary)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
+
+            Button(action: onGo) {
+                HStack(spacing: 4) {
+                    Text(goText)
+                        .font(.system(size: 13, weight: .semibold))
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 11, weight: .bold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Color.warmOrange)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.12), radius: 16, x: 0, y: 6)
     }
 }
 

@@ -5,6 +5,7 @@ struct MealDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var scrollOffset: CGFloat = 0
     @State private var heartScale: CGFloat = 1
+    @State private var ratingExpanded = false
 
     private let heroHeight: CGFloat = 420
     private var lm: LanguageManager { LanguageManager.shared }
@@ -88,7 +89,7 @@ struct MealDetailView: View {
                 }
                 MetaChip(
                     icon: "list.bullet.clipboard",
-                    text: "\(viewModel.meal.ingredients.count) ingredients",
+                    text: String(format: lm.t.ingredientsCountFormat, viewModel.meal.ingredients.count),
                     color: Color.blue
                 )
             }
@@ -106,6 +107,9 @@ struct MealDetailView: View {
                 ingredientsSection
             }
 
+            // Links (Watch & Read) — moved above instructions
+            linksSection
+
             // Instructions
             if let instructions = viewModel.meal.instructions, !instructions.isEmpty {
                 instructionsSection(instructions)
@@ -113,8 +117,8 @@ struct MealDetailView: View {
                 detailLoadingIndicator
             }
 
-            // Links
-            linksSection
+            // Rating
+            ratingSection
 
             Color.clear.frame(height: 80)
         }
@@ -147,7 +151,8 @@ struct MealDetailView: View {
             .filter { $0.count > 10 }
 
         return VStack(alignment: .leading, spacing: 14) {
-            DetailSectionHeader(title: lm.t.howToCook, badge: "\(steps.count) steps")
+            DetailSectionHeader(
+                title: lm.t.howToCook, badge: String(format: lm.t.stepsCountFormat, steps.count))
             VStack(spacing: 10) {
                 ForEach(Array(steps.enumerated()), id: \.offset) { i, step in
                     CookingStepCard(index: i + 1, text: step)
@@ -167,6 +172,77 @@ struct MealDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+    }
+
+    // MARK: - Rating Section (Accordion)
+    @ViewBuilder
+    private var ratingSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header row — always visible
+            Button {
+                withAnimation(.spring(response: 0.36, dampingFraction: 0.78)) {
+                    ratingExpanded.toggle()
+                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.warmOrange)
+
+                    if let r = viewModel.rating {
+                        Text(lm.t.yourRating)
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.textPrimary)
+                        Spacer()
+                        HStack(spacing: 3) {
+                            ForEach(1...5, id: \.self) { i in
+                                Image(systemName: i <= r.overallScore ? "star.fill" : "star")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(i <= r.overallScore ? Color.warmOrange : Color(.tertiaryLabel))
+                            }
+                        }
+                    } else {
+                        Text(lm.t.rateMeal)
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.textPrimary)
+                        Spacer()
+                    }
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color(.tertiaryLabel))
+                        .rotationEffect(.degrees(ratingExpanded ? 90 : 0))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+            }
+            .buttonStyle(.plain)
+
+            // Expanded body
+            if ratingExpanded {
+                RatingAccordionBody(
+                    existing: viewModel.rating,
+                    lm: lm,
+                    onSave: { overall, taste, eatAgain, recommend in
+                        viewModel.saveRating(
+                            overallScore: overall,
+                            tasteScore: taste,
+                            wouldEatAgain: eatAgain,
+                            wouldRecommend: recommend
+                        )
+                        withAnimation(.spring(response: 0.36, dampingFraction: 0.78)) {
+                            ratingExpanded = false
+                        }
+                    }
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - External Links
@@ -381,6 +457,122 @@ private struct LinkButton: View {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(color.opacity(0.25), lineWidth: 1)
             )
+        }
+    }
+}
+
+// MARK: - Rating Accordion Body
+private struct RatingAccordionBody: View {
+    let existing: PersistedMealRating?
+    let lm: LanguageManager
+    let onSave: (Int, Int, Bool, Bool) -> Void
+
+    @State private var overallScore: Int = 3
+    @State private var tasteScore: Int = 3
+    @State private var wouldEatAgain: Bool = true
+    @State private var wouldRecommend: Bool = true
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Divider()
+
+            ratingRow(title: lm.t.overallScore, icon: "star.fill", score: $overallScore)
+            ratingRow(title: lm.t.tasteScore, icon: "fork.knife", score: $tasteScore)
+            toggleRow(title: lm.t.wouldEatAgain, value: $wouldEatAgain,
+                      trueIcon: "checkmark", falseIcon: "xmark")
+            toggleRow(title: lm.t.wouldRecommend, value: $wouldRecommend,
+                      trueIcon: "hand.thumbsup.fill", falseIcon: "hand.thumbsdown.fill")
+
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                onSave(overallScore, tasteScore, wouldEatAgain, wouldRecommend)
+            } label: {
+                Text(lm.t.saveRating)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(Color.warmOrange)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
+        }
+        .onAppear {
+            if let r = existing {
+                overallScore = r.overallScore
+                tasteScore = r.tasteScore
+                wouldEatAgain = r.wouldEatAgain
+                wouldRecommend = r.wouldRecommend
+            }
+        }
+    }
+
+    private func ratingRow(title: String, icon: String, score: Binding<Int>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.warmOrange)
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.textPrimary)
+                Spacer()
+                Text("\(score.wrappedValue)/5")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.warmOrange)
+            }
+            HStack(spacing: 8) {
+                ForEach(1...5, id: \.self) { i in
+                    Button {
+                        withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                            score.wrappedValue = i
+                        }
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        Image(systemName: i <= score.wrappedValue ? "star.fill" : "star")
+                            .font(.system(size: 28))
+                            .foregroundStyle(i <= score.wrappedValue ? Color.warmOrange : Color(.tertiaryLabel))
+                            .scaleEffect(i == score.wrappedValue ? 1.15 : 1.0)
+                            .animation(.spring(response: 0.2, dampingFraction: 0.5), value: score.wrappedValue)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func toggleRow(title: String, value: Binding<Bool>,
+                           trueIcon: String, falseIcon: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(Color.textPrimary)
+            Spacer()
+            HStack(spacing: 0) {
+                Button {
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) { value.wrappedValue = true }
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                } label: {
+                    Image(systemName: trueIcon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(value.wrappedValue ? .white : Color(.tertiaryLabel))
+                        .frame(width: 46, height: 34)
+                        .background(value.wrappedValue ? Color.tryGreen : Color(.tertiarySystemFill))
+                }
+                .buttonStyle(.plain)
+                Button {
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) { value.wrappedValue = false }
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                } label: {
+                    Image(systemName: falseIcon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(!value.wrappedValue ? .white : Color(.tertiaryLabel))
+                        .frame(width: 46, height: 34)
+                        .background(!value.wrappedValue ? Color.dislikeRed : Color(.tertiarySystemFill))
+                }
+                .buttonStyle(.plain)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
         }
     }
 }

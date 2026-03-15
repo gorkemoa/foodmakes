@@ -10,6 +10,7 @@ final class MealDetailViewModel {
     var isDisliked: Bool = false
     var loadedFullDetail: Meal?
     var isLoadingDetail = false
+    var rating: PersistedMealRating? = nil
 
     private let repository: MealRepository
     private let service: MealService
@@ -34,6 +35,7 @@ final class MealDetailViewModel {
     func refreshStatus() {
         isInTryList = repository.isInTryList(id: meal.id)
         isDisliked = repository.isDisliked(id: meal.id)
+        rating = try? repository.fetchRating(mealId: meal.id)
     }
 
     func toggleTryList() {
@@ -45,5 +47,20 @@ final class MealDetailViewModel {
             }
             refreshStatus()
         } catch { print("[MealDetailVM] toggleTryList error: \(error)") }
+    }
+
+    func saveRating(overallScore: Int, tasteScore: Int, wouldEatAgain: Bool, wouldRecommend: Bool) {
+        do {
+            try repository.saveRating(
+                mealId: meal.id,
+                mealName: meal.name,
+                thumbnailURL: meal.thumbnailURL,
+                overallScore: overallScore,
+                tasteScore: tasteScore,
+                wouldEatAgain: wouldEatAgain,
+                wouldRecommend: wouldRecommend
+            )
+            refreshStatus()
+        } catch { print("[MealDetailVM] saveRating error: \(error)") }
     }
 }

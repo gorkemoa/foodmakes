@@ -18,7 +18,7 @@ struct TryListView: View {
                 if viewModel.meals.isEmpty {
                     tryListEmpty
                 } else {
-                    gridContent
+                    groupedContent
                 }
             }
             .navigationTitle(lm.t.tryListTitle)
@@ -42,24 +42,42 @@ struct TryListView: View {
         }
     }
 
-    private var gridContent: some View {
+    private var groupedContent: some View {
         ScrollView(showsIndicators: false) {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.filtered) { meal in
-                    PinCard(
-                        name: meal.name,
-                        category: meal.category,
-                        imageURL: meal.thumbnailURL.flatMap(URL.init),
-                        accentColor: .tryGreen
-                    ) {
-                        viewModel.tapMeal(meal)
-                    } onRemove: {
-                        withAnimation { viewModel.remove(id: meal.id) }
+            LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
+                ForEach(viewModel.groupedFiltered, id: \.key) { group in
+                    Section {
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(group.meals) { meal in
+                                PinCard(
+                                    name: meal.name,
+                                    category: meal.category,
+                                    imageURL: meal.thumbnailURL.flatMap(URL.init),
+                                    accentColor: .tryGreen,
+                                    ratingScore: viewModel.ratings[meal.id]
+                                ) {
+                                    viewModel.tapMeal(meal)
+                                } onRemove: {
+                                    withAnimation { viewModel.remove(id: meal.id) }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 20)
+                    } header: {
+                        let title = group.key.isEmpty ? lm.t.categoryOther : group.key
+                        Text(title.uppercased())
+                            .font(.system(size: 11, weight: .bold))
+                            .kerning(1.2)
+                            .foregroundStyle(Color.textSecondary)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.systemBackground).opacity(0.94))
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
+            .padding(.top, 4)
             .padding(.bottom, 90)
         }
     }
@@ -87,6 +105,7 @@ struct PinCard: View {
     let category: String?
     let imageURL: URL?
     let accentColor: Color
+    var ratingScore: Int? = nil
     let onTap: () -> Void
     let onRemove: () -> Void
 
@@ -108,6 +127,24 @@ struct PinCard: View {
                         .clipShape(Circle())
                 }
                 .padding(8)
+
+                // Star rating badge (bottom-left of image)
+                if let score = ratingScore {
+                    HStack(spacing: 3) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 9, weight: .bold))
+                        Text("\(score)")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .background(Color.warmOrange.opacity(0.90))
+                    .clipShape(Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity,
+                           alignment: .bottomLeading)
+                    .padding(8)
+                }
             }
 
             // Text below image

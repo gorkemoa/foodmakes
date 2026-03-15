@@ -58,3 +58,29 @@ final class SwipedRecord {
         directionRaw == "left" ? .left : .right
     }
 }
+
+// MARK: - PersistedMealRating
+@Model
+final class PersistedMealRating {
+    @Attribute(.unique) var mealId: String
+    var mealName: String
+    var thumbnailURL: String?
+    var overallScore: Int   // 1–5  (genel puan)
+    var tasteScore: Int     // 1–5  (lezzet)
+    var wouldEatAgain: Bool // tekrar yer mi
+    var wouldRecommend: Bool // önerir mi
+    var ratedAt: Date
+
+    init(mealId: String, mealName: String, thumbnailURL: String? = nil,
+         overallScore: Int, tasteScore: Int,
+         wouldEatAgain: Bool, wouldRecommend: Bool) {
+        self.mealId = mealId
+        self.mealName = mealName
+        self.thumbnailURL = thumbnailURL
+        self.overallScore = overallScore
+        self.tasteScore = tasteScore
+        self.wouldEatAgain = wouldEatAgain
+        self.wouldRecommend = wouldRecommend
+        self.ratedAt = .now
+    }
+}
