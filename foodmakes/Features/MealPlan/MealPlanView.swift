@@ -442,9 +442,6 @@ private struct PlanMealCard: View {
     let plan: PersistedMealPlan
     let onDelete: () -> Void
 
-    @AppStorage("fm_plan_notif_hour_m") private var planMorningHour: Int = 8
-    @AppStorage("fm_plan_notif_hour_e") private var planEveningHour: Int = 18
-
     var body: some View {
         HStack(spacing: 12) {
             // Thumbnail
@@ -461,7 +458,7 @@ private struct PlanMealCard: View {
                     Image(systemName: "bell.fill")
                         .font(.system(size: 10))
                         .foregroundStyle(Color.warmOrange)
-                    Text(String(format: "%02d:00  ·  %02d:00", planMorningHour, planEveningHour))
+                    Text(notifTimeLabel)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.textSecondary)
                 }
@@ -482,5 +479,28 @@ private struct PlanMealCard: View {
         .padding(12)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    // MARK: - Parse encoded times from notif IDs
+    // IDs follow format: fm_plan_m_{mealId}_t{h}x{m}_{stamp}
+    private var notifTimeLabel: String {
+        let t1 = parseTime(from: plan.morningNotifId)
+        let t2 = plan.eveningNotifId.isEmpty ? nil : parseTime(from: plan.eveningNotifId)
+        if let t1 {
+            return t2.map { "\(t1)  ·  \($0)" } ?? t1
+        }
+        return "– : –"
+    }
+
+    private func parseTime(from id: String) -> String? {
+        // Find "_t{h}x{m}_" segment
+        let parts = id.components(separatedBy: "_")
+        guard let tPart = parts.first(where: { $0.hasPrefix("t") && $0.contains("x") }) else { return nil }
+        let inner = tPart.dropFirst()            // drop "t"
+        let sub   = inner.components(separatedBy: "x")
+        guard sub.count == 2,
+              let h = Int(sub[0]), (0..<24).contains(h),
+              let m = Int(sub[1]), (0..<60).contains(m) else { return nil }
+        return String(format: "%02d:%02d", h, m)
     }
 }

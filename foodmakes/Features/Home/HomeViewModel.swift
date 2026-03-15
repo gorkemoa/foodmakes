@@ -11,6 +11,14 @@ final class HomeViewModel {
     var selectedMeal: Meal?
     var showDetail = false
 
+    // MARK: - Ad tracking (show native ad every 7th swipe)
+    private(set) var mealSwipesSinceLastAd: Int = 0
+    var isAdTurn: Bool { mealSwipesSinceLastAd >= 6 }   // 6 meals → ad slot
+
+    func dismissAd() {
+        mealSwipesSinceLastAd = 0
+    }
+
     // MARK: - Dependencies
     private let service: MealService
     private(set) var repository: MealRepository
@@ -48,11 +56,13 @@ final class HomeViewModel {
     func swipeLeft(meal: Meal) {
         persist(meal: meal, direction: .left)
         removeFromDeck(meal)
+        mealSwipesSinceLastAd += 1
     }
 
     func swipeRight(meal: Meal) {
         persist(meal: meal, direction: .right)
         removeFromDeck(meal)
+        mealSwipesSinceLastAd += 1
     }
 
     func tapCard(_ meal: Meal) {

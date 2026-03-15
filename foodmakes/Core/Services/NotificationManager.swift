@@ -119,33 +119,49 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     // MARK: - Meal Plan Notifications
-    /// Schedules a morning and evening one-time notification for the planned date using persisted preferences.
+    /// Schedules 1 or 2 one-time notifications for the planned date at the user's chosen times.
+    /// The hour & minute are encoded in the IDs (format: fm_plan_m_{id}_t{h}x{m}_{stamp})
+    /// so they can be parsed back for display in the plan list.
     @discardableResult
-    func scheduleMealPlanNotifications(mealId: String, mealName: String, date: Date) -> (morningId: String, eveningId: String) {
-        let stamp     = Int(date.timeIntervalSince1970)
-        let morningId = "fm_plan_m_\(mealId)_\(stamp)"
-        let eveningId = "fm_plan_e_\(mealId)_\(stamp)"
-
-        let lang    = LanguageManager.shared.current
+    func scheduleMealPlanNotifications(
+        mealId: String,
+        mealName: String,
+        date: Date,
+        time1: Date,
+        time2: Date?
+    ) -> (morningId: String, eveningId: String) {
+        let stamp = Int(date.timeIntervalSince1970)
+        let lang  = LanguageManager.shared.current
         let baseDay = Calendar.current.dateComponents([.year, .month, .day], from: date)
 
-        var morningComps = baseDay; morningComps.hour = planMorningHour; morningComps.minute = 0
-        var eveningComps = baseDay; eveningComps.hour = planEveningHour; eveningComps.minute = 0
-
+        let h1 = Calendar.current.component(.hour, from: time1)
+        let m1 = Calendar.current.component(.minute, from: time1)
+        let morningId = "fm_plan_m_\(mealId)_t\(h1)x\(m1)_\(stamp)"
+        var comps1 = baseDay; comps1.hour = h1; comps1.minute = m1
         schedulePlanNotif(id: morningId,
                           title: planMorningTitle(lang: lang, name: mealName),
                           body:  planMorningBody(lang: lang),
-                          components: morningComps)
-        schedulePlanNotif(id: eveningId,
-                          title: planEveningTitle(lang: lang, name: mealName),
-                          body:  planEveningBody(lang: lang),
-                          components: eveningComps)
+                          components: comps1)
+
+        var eveningId = ""
+        if let t2 = time2 {
+            let h2 = Calendar.current.component(.hour, from: t2)
+            let m2 = Calendar.current.component(.minute, from: t2)
+            eveningId = "fm_plan_e_\(mealId)_t\(h2)x\(m2)_\(stamp)"
+            var comps2 = baseDay; comps2.hour = h2; comps2.minute = m2
+            schedulePlanNotif(id: eveningId,
+                              title: planEveningTitle(lang: lang, name: mealName),
+                              body:  planEveningBody(lang: lang),
+                              components: comps2)
+        }
 
         return (morningId, eveningId)
     }
 
     func cancelMealPlanNotifications(morningId: String, eveningId: String) {
-        center.removePendingNotificationRequests(withIdentifiers: [morningId, eveningId])
+        var ids = [morningId]
+        if !eveningId.isEmpty { ids.append(eveningId) }
+        center.removePendingNotificationRequests(withIdentifiers: ids)
     }
 
     private func schedulePlanNotif(id: String, title: String, body: String, components: DateComponents) {

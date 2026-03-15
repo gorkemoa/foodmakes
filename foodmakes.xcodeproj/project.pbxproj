@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AD000001AD000001AD000001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AD000002AD000002AD000002 /* GoogleMobileAds */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DE54087A2F66B5F10014195E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -32,6 +36,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DE54086E2F66B5EF0014195E /* foodmakes */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AD000010AD000010AD000010 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
 			path = foodmakes;
 			sourceTree = "<group>";
 		};
@@ -47,11 +54,22 @@
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AD000010AD000010AD000010 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DE54086B2F66B5EF0014195E /* foodmakes */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		DE5408692F66B5EF0014195E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD000001AD000001AD000001 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +130,7 @@
 			);
 			name = foodmakes;
 			packageProductDependencies = (
+				AD000002AD000002AD000002 /* GoogleMobileAds */,
 			);
 			productName = foodmakes;
 			productReference = DE54086C2F66B5EF0014195E /* foodmakes.app */;
@@ -192,9 +211,16 @@
 			knownRegions = (
 				en,
 				Base,
+				tr,
+				es,
+				fr,
+				it,
 			);
 			mainGroup = DE5408632F66B5EF0014195E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AD000003AD000003AD000003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DE54086D2F66B5EF0014195E /* Products */;
 			projectDirPath = "";
@@ -399,12 +425,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A53CAQQ989;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = foodmakes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -432,12 +454,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A53CAQQ989;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = foodmakes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -580,6 +598,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AD000003AD000003AD000003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AD000002AD000002AD000002 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD000003AD000003AD000003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DE5408642F66B5EF0014195E /* Project object */;
 }

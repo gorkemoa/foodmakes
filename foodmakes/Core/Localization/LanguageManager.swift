@@ -156,6 +156,8 @@ struct Translations {
     let morningReminder: String
     let eveningReminder: String
     let notifPermissionDenied: String
+    let addSecondReminder: String
+    let removeSecondReminder: String
 }
 
 // MARK: - Language Manager
@@ -297,7 +299,9 @@ private let englishTranslations = Translations(
     planRemindersSub:       "Set times for your planned meals",
     morningReminder:        "Morning",
     eveningReminder:        "Evening",
-    notifPermissionDenied:  "Enable notifications in Settings app"
+    notifPermissionDenied:  "Enable notifications in Settings app",
+    addSecondReminder:      "Add second reminder",
+    removeSecondReminder:   "Remove second reminder"
 )
 
 private let turkishTranslations = Translations(
@@ -395,7 +399,9 @@ private let turkishTranslations = Translations(
     planRemindersSub:       "Planlı yemekleriniz için saatleri belirleyin",
     morningReminder:        "Sabah",
     eveningReminder:        "Akşam",
-    notifPermissionDenied:  "Bildirimler için Ayarlar'ı aç"
+    notifPermissionDenied:  "Bildirimler için Ayarlar'ı aç",
+    addSecondReminder:      "İkinci hatırlatıcı ekle",
+    removeSecondReminder:   "İkinci hatırlatıcıyı kaldır"
 )
 
 private let spanishTranslations = Translations(
@@ -493,7 +499,9 @@ private let spanishTranslations = Translations(
     planRemindersSub:       "Configura las horas para tus comidas planificadas",
     morningReminder:        "Mañana",
     eveningReminder:        "Noche",
-    notifPermissionDenied:  "Activa las notificaciones en Ajustes"
+    notifPermissionDenied:  "Activa las notificaciones en Ajustes",
+    addSecondReminder:      "Añadir segundo recordatorio",
+    removeSecondReminder:   "Quitar segundo recordatorio"
 )
 
 private let frenchTranslations = Translations(
@@ -591,7 +599,9 @@ private let frenchTranslations = Translations(
     planRemindersSub:       "Définissez les heures pour vos repas planifiés",
     morningReminder:        "Matin",
     eveningReminder:        "Soir",
-    notifPermissionDenied:  "Activez les notifications dans Réglages"
+    notifPermissionDenied:  "Activez les notifications dans Réglages",
+    addSecondReminder:      "Ajouter un 2e rappel",
+    removeSecondReminder:   "Supprimer le 2e rappel"
 )
 
 private let italianTranslations = Translations(
@@ -689,5 +699,7 @@ private let italianTranslations = Translations(
     planRemindersSub:       "Imposta gli orari per i tuoi pasti pianificati",
     morningReminder:        "Mattina",
     eveningReminder:        "Sera",
-    notifPermissionDenied:  "Attiva le notifiche nelle Impostazioni"
+    notifPermissionDenied:  "Attiva le notifiche nelle Impostazioni",
+    addSecondReminder:      "Aggiungi secondo promemoria",
+    removeSecondReminder:   "Rimuovi secondo promemoria"
 )

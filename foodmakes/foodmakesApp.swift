@@ -8,9 +8,14 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import GoogleMobileAds
 
 @main
 struct foodmakesApp: App {
+
+    init() {
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+    }
 
     let container: ModelContainer = {
         let schema = Schema([

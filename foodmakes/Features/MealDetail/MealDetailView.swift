@@ -52,8 +52,8 @@ struct MealDetailView: View {
         .navigationBarHidden(true)
         .task { await viewModel.loadDetailIfNeeded() }
         .sheet(isPresented: $viewModel.showAddToPlanSheet) {
-            AddToPlanSheet(mealName: viewModel.meal.name) { date in
-                viewModel.addToPlan(date: date)
+            AddToPlanSheet(mealName: viewModel.meal.name) { date, time1, time2 in
+                viewModel.addToPlan(date: date, time1: time1, time2: time2)
             }
         }
     }

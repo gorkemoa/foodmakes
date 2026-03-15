@@ -56,9 +56,12 @@ final class MealDetailViewModel {
         } catch { print("[MealDetailVM] toggleTryList error: \(error)") }
     }
 
-    func addToPlan(date: Date) {
+    func addToPlan(date: Date, time1: Date, time2: Date?) {
         let nm  = NotificationManager.shared
-        let ids = nm.scheduleMealPlanNotifications(mealId: meal.id, mealName: meal.name, date: date)
+        let ids = nm.scheduleMealPlanNotifications(
+            mealId: meal.id, mealName: meal.name,
+            date: date, time1: time1, time2: time2
+        )
         do {
             try repository.addToPlan(
                 mealId: meal.id, mealName: meal.name, thumbnailURL: meal.thumbnailURL,

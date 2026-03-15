@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var toastMeal: Meal?
     @State private var showToast = false
     @State private var showSettings = false
+    @State private var adLoader = NativeAdLoader()
     private var lm: LanguageManager { LanguageManager.shared }
 
     init(viewModel: HomeViewModel) {
@@ -123,32 +124,11 @@ struct HomeView: View {
 
         case .loaded:
             ZStack {
-                let visible = Array(viewModel.meals.prefix(3).reversed().enumerated())
-                ForEach(visible, id: \.element.id) { idx, meal in
-                    let depth = CGFloat(idx)
-                    let total = CGFloat(min(viewModel.meals.count, 3))
-                    let isTop = idx == Int(total) - 1
-
-                    if isTop {
-                        SwipeCardView(
-                            meal: meal,
-                            onSwipeLeft:  { viewModel.swipeLeft(meal: meal) },
-                            onSwipeRight: {
-                                viewModel.swipeRight(meal: meal)
-                                triggerToast(for: meal)
-                            },
-                            onTap: {
-                                selectedMeal = meal
-                                showDetail = true
-                            }
-                        )
-                        .padding(.horizontal, AppSpacing.md)
-                        .transition(.asymmetric(
-                            insertion: .scale(scale: 0.94).combined(with: .opacity),
-                            removal: .identity
-                        ))
-                    } else {
-                        let gap = total - 1 - depth
+                if viewModel.isAdTurn {
+                    // ── Background meal cards (stacked under ad) ───────────
+                    let backMeals = Array(viewModel.meals.prefix(2).reversed().enumerated())
+                    ForEach(backMeals, id: \.element.id) { idx, _ in
+                        let gap = CGFloat(backMeals.count - 1 - idx)
                         RoundedRectangle(cornerRadius: 22, style: .continuous)
                             .fill(Color(.secondarySystemFill))
                             .padding(.horizontal, AppSpacing.md + gap * 10)
@@ -156,47 +136,110 @@ struct HomeView: View {
                             .scaleEffect(1 - gap * 0.03)
                             .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
                     }
+
+                    // ── Native ad card on top ──────────────────────────────
+                    NativeAdCardView(loader: adLoader) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            viewModel.dismissAd()
+                            // Pre-load next ad early
+                            adLoader = NativeAdLoader()
+                        }
+                    }
+                    .padding(.horizontal, AppSpacing.md)
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.94).combined(with: .opacity),
+                        removal: .identity
+                    ))
+                } else {
+                    let visible = Array(viewModel.meals.prefix(3).reversed().enumerated())
+                    ForEach(visible, id: \.element.id) { idx, meal in
+                        let depth = CGFloat(idx)
+                        let total = CGFloat(min(viewModel.meals.count, 3))
+                        let isTop = idx == Int(total) - 1
+
+                        if isTop {
+                            SwipeCardView(
+                                meal: meal,
+                                onSwipeLeft:  { viewModel.swipeLeft(meal: meal) },
+                                onSwipeRight: {
+                                    viewModel.swipeRight(meal: meal)
+                                    triggerToast(for: meal)
+                                },
+                                onTap: {
+                                    selectedMeal = meal
+                                    showDetail = true
+                                }
+                            )
+                            .padding(.horizontal, AppSpacing.md)
+                            .transition(.asymmetric(
+                                insertion: .scale(scale: 0.94).combined(with: .opacity),
+                                removal: .identity
+                            ))
+                            .onChange(of: viewModel.mealSwipesSinceLastAd) { _, newVal in
+                                // Pre-load ad one swipe before it appears
+                                if newVal == 5 { adLoader.load() }
+                            }
+                        } else {
+                            let gap = total - 1 - depth
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .fill(Color(.secondarySystemFill))
+                                .padding(.horizontal, AppSpacing.md + gap * 10)
+                                .offset(y: gap * 8)
+                                .scaleEffect(1 - gap * 0.03)
+                                .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
+                        }
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
             .frame(height: cardHeight)
             .animation(.spring(response: 0.45, dampingFraction: 0.80), value: viewModel.meals.map(\.id))
+            .animation(.spring(response: 0.45, dampingFraction: 0.80), value: viewModel.isAdTurn)
         }
     }
 
     // MARK: - Action Buttons
     @ViewBuilder
     private var actionButtonsSection: some View {
-        if case .loaded = viewModel.loadState, let topMeal = viewModel.meals.first {
-            HStack(spacing: 0) {
-                Spacer()
-                // Skip
-                VStack(spacing: 6) {
-                    DeckButton(icon: "xmark", color: .dislikeRed, size: 58) {
-                        viewModel.swipeLeft(meal: topMeal)
+        if case .loaded = viewModel.loadState {
+            if viewModel.isAdTurn {
+                // Swipe hint shown during ad
+                Text("Swipe to continue")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+            } else if let topMeal = viewModel.meals.first {
+                HStack(spacing: 0) {
+                    Spacer()
+                    // Skip
+                    VStack(spacing: 6) {
+                        DeckButton(icon: "xmark", color: .dislikeRed, size: 58) {
+                            viewModel.swipeLeft(meal: topMeal)
+                        }
+                        Text(lm.t.skip)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.textSecondary)
                     }
-                    Text(lm.t.skip)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(Color.textSecondary)
-                }
-                Spacer()
-                // Full detail
-                DeckButton(icon: "arrow.up.right", color: Color(.tertiaryLabel), size: 44) {
-                    selectedMeal = topMeal
-                    showDetail = true
-                }
-                Spacer()
-                // Save
-                VStack(spacing: 6) {
-                    DeckButton(icon: "heart.fill", color: .tryGreen, size: 58) {
-                        viewModel.swipeRight(meal: topMeal)
-                        triggerToast(for: topMeal)
+                    Spacer()
+                    // Full detail
+                    DeckButton(icon: "arrow.up.right", color: Color(.tertiaryLabel), size: 44) {
+                        selectedMeal = topMeal
+                        showDetail = true
                     }
-                    Text(lm.t.save)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(Color.textSecondary)
+                    Spacer()
+                    // Save
+                    VStack(spacing: 6) {
+                        DeckButton(icon: "heart.fill", color: .tryGreen, size: 58) {
+                            viewModel.swipeRight(meal: topMeal)
+                            triggerToast(for: topMeal)
+                        }
+                        Text(lm.t.save)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
         }
     }
