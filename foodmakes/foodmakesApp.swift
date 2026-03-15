@@ -38,6 +38,9 @@ struct foodmakesApp: App {
             AppRootView()
                 .modelContainer(container)
                 .task {
+                    // Increment launch counter and trigger rating prompt if needed
+                    AppRatingService.shared.onAppLaunched()
+
                     // Request notification permission once on first launch.
                     // If granted and user had a reminder enabled, reschedule it.
                     let granted = await NotificationManager.shared.requestPermission()

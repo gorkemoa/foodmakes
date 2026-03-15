@@ -73,8 +73,10 @@ struct HomeView: View {
     private var headerSection: some View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("FoodMakes")
-                    .font(.system(size: 28, weight: .bold))
+                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "FoodMakes")
+                    .font(.system(size: 22, weight: .bold))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
                     .foregroundStyle(Color.textPrimary)
                 Text(lm.t.appTagline)
                     .font(.system(size: 11, weight: .regular))

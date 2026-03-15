@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
     @State private var needsDownload: Set<String> = []
     private var lm: LanguageManager { LanguageManager.shared }
+    private var themeManager: ThemeManager { ThemeManager.shared }
 
     init(repository: MealRepository) {
         _viewModel = State(initialValue: SettingsViewModel(repository: repository))
@@ -19,6 +20,7 @@ struct SettingsView: View {
                     VStack(spacing: 22) {
                         appHeader
                         languageSection
+                        appearanceSection
                         notificationsSection
                         dataManagementSection
                         aboutSection
@@ -51,8 +53,10 @@ struct SettingsView: View {
                 .frame(width: 52, height: 52)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 3) {
-                Text("FoodMakes")
-                    .font(.system(size: 17, weight: .bold))
+                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "FoodMakes")
+                    .font(.system(size: 15, weight: .bold))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
                     .foregroundStyle(Color.textPrimary)
                 Text(lm.t.appSubtitle)
                     .font(.system(size: 12))
@@ -63,6 +67,53 @@ struct SettingsView: View {
         .padding(16)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: - Appearance Section
+    private var appearanceSection: some View {
+        SettingsSection(title: lm.t.themeSection, icon: "paintbrush.fill") {
+            VStack(spacing: 0) {
+                ForEach(Array(AppThemePreference.allCases.enumerated()), id: \.1.rawValue) { idx, theme in
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                            themeManager.preference = theme
+                        }
+                    } label: {
+                        HStack(spacing: 14) {
+                            settingsIcon(theme.icon, color: theme == .dark ? .indigo : theme == .light ? Color(red: 0.88, green: 0.60, blue: 0.10) : .gray)
+                            Text(themeLabel(theme))
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(Color.textPrimary)
+                            Spacer()
+                            if themeManager.preference == theme {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(Color.warmOrange)
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 13)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+
+                    if idx < AppThemePreference.allCases.count - 1 {
+                        Divider().padding(.leading, 64)
+                    }
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+
+    private func themeLabel(_ theme: AppThemePreference) -> String {
+        switch theme {
+        case .system: return lm.t.themeSystem
+        case .light:  return lm.t.themeLight
+        case .dark:   return lm.t.themeDark
+        }
     }
 
     // MARK: - Language Picker Section
@@ -351,6 +402,33 @@ struct SettingsView: View {
                         .foregroundStyle(Color.textSecondary)
                 }
                 .padding(.horizontal, 16).padding(.vertical, 13)
+
+                divider
+
+                // Rate App row
+                Button {
+                    AppRatingService.shared.openAppStorePage()
+                } label: {
+                    HStack(spacing: 14) {
+                        settingsIcon("star.fill", color: .warmOrange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(lm.t.rateApp)
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(Color.textPrimary)
+                            Text(lm.t.rateAppSub)
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.textSecondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.quaternary)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
 
                 divider
 

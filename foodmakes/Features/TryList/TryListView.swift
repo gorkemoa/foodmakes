@@ -1,7 +1,13 @@
 import SwiftUI
 
+// MARK: - Filter Mode
+enum TryListFilterMode: String, CaseIterable {
+    case all, category
+}
+
 struct TryListView: View {
     @State private var viewModel: TryListViewModel
+    @State private var filterMode: TryListFilterMode = .all
     private var lm: LanguageManager { LanguageManager.shared }
 
     init(repository: MealRepository) {
@@ -18,7 +24,14 @@ struct TryListView: View {
                 if viewModel.meals.isEmpty {
                     tryListEmpty
                 } else {
-                    groupedContent
+                    VStack(spacing: 0) {
+                        filterPicker
+                        if filterMode == .all {
+                            flatContent
+                        } else {
+                            groupedContent
+                        }
+                    }
                 }
             }
             .navigationTitle(lm.t.tryListTitle)
@@ -42,6 +55,42 @@ struct TryListView: View {
         }
     }
 
+    // MARK: - Filter Picker
+    private var filterPicker: some View {
+        Picker("", selection: $filterMode) {
+            Text(lm.t.filterAll).tag(TryListFilterMode.all)
+            Text(lm.t.filterCategories).tag(TryListFilterMode.category)
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: - Flat (All) Content
+    private var flatContent: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(viewModel.filtered) { meal in
+                    PinCard(
+                        name: meal.name,
+                        category: meal.category,
+                        imageURL: meal.thumbnailURL.flatMap(URL.init),
+                        accentColor: .tryGreen,
+                        ratingScore: viewModel.ratings[meal.id]
+                    ) {
+                        viewModel.tapMeal(meal)
+                    } onRemove: {
+                        withAnimation { viewModel.remove(id: meal.id) }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+            .padding(.bottom, 90)
+        }
+    }
+
+    // MARK: - Grouped (Category) Content
     private var groupedContent: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {

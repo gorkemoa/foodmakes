@@ -33,11 +33,21 @@
 		DE5408832F66B5F10014195E /* foodmakesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = foodmakesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AD000010AD000010AD000010 /* Exceptions for "foodmakes" folder in "foodmakes" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DE54086B2F66B5EF0014195E /* foodmakes */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DE54086E2F66B5EF0014195E /* foodmakes */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AD000010AD000010AD000010 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				AD000010AD000010AD000010 /* Exceptions for "foodmakes" folder in "foodmakes" target */,
 			);
 			path = foodmakes;
 			sourceTree = "<group>";
@@ -53,16 +63,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AD000010AD000010AD000010 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = DE54086B2F66B5EF0014195E /* foodmakes */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DE5408692F66B5EF0014195E /* Frameworks */ = {

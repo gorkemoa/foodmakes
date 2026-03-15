@@ -158,6 +158,36 @@ struct Translations {
     let notifPermissionDenied: String
     let addSecondReminder: String
     let removeSecondReminder: String
+
+    // Appearance / Theme
+    let themeOnboardingTitle: String
+    let themeOnboardingSubtitle: String
+    let themeLight: String
+    let themeDark: String
+    let themeContinue: String
+    let themeChangeHint: String
+    let themeSection: String
+    let themeSystem: String
+    let themeRecommended: String
+
+    // TryList filter
+    let filterAll: String
+    let filterCategories: String
+
+    // App Rating
+    let rateApp: String
+    let rateAppSub: String
+    let rateAppPopupTitle: String
+    let rateAppPopupMessage: String
+    let rateNow: String
+    let notNow: String
+
+    // Update Checker
+    let updateAvailableTitle: String
+    let updateAvailableMessage: String   // "%@ is available"
+    let updateCurrentVersion: String     // "Current: %@"
+    let updateNow: String
+    let updateLater: String
 }
 
 // MARK: - Language Manager
@@ -301,7 +331,29 @@ private let englishTranslations = Translations(
     eveningReminder:        "Evening",
     notifPermissionDenied:  "Enable notifications in Settings app",
     addSecondReminder:      "Add second reminder",
-    removeSecondReminder:   "Remove second reminder"
+    removeSecondReminder:   "Remove second reminder",
+    themeOnboardingTitle:   "How do you like it?",
+    themeOnboardingSubtitle: "Choose the look that feels right. You can always change it later in Settings.",
+    themeLight:             "Light",
+    themeDark:              "Dark",
+    themeContinue:          "Continue",
+    themeChangeHint:        "You can change this anytime in Settings → Appearance",
+    themeSection:           "Appearance",
+    themeSystem:            "System Default",
+    themeRecommended:       "Recommended",
+    filterAll:              "All",
+    filterCategories:       "Categories",
+    rateApp:                "Rate the App",
+    rateAppSub:             "Share your feedback on the App Store",
+    rateAppPopupTitle:      "Enjoying the app?",
+    rateAppPopupMessage:    "A quick rating helps us grow and keep improving recipes for you.",
+    rateNow:                "Rate Now ★",
+    notNow:                 "Not Now",
+    updateAvailableTitle:   "Update Available",
+    updateAvailableMessage: "Version %@ is now available.",
+    updateCurrentVersion:   "You have version %@",
+    updateNow:              "Update Now",
+    updateLater:            "Later"
 )
 
 private let turkishTranslations = Translations(
@@ -401,7 +453,29 @@ private let turkishTranslations = Translations(
     eveningReminder:        "Akşam",
     notifPermissionDenied:  "Bildirimler için Ayarlar'ı aç",
     addSecondReminder:      "İkinci hatırlatıcı ekle",
-    removeSecondReminder:   "İkinci hatırlatıcıyı kaldır"
+    removeSecondReminder:   "İkinci hatırlatıcıyı kaldır",
+    themeOnboardingTitle:   "Nasıl görünsün?",
+    themeOnboardingSubtitle: "Sana uygun görünümü seç. Daha sonra Ayarlar'dan değiştirebilirsin.",
+    themeLight:             "Aydınlık",
+    themeDark:              "Karanlık",
+    themeContinue:          "Devam Et",
+    themeChangeHint:        "Bunu istediğin zaman Ayarlar → Görünüm'den değiştirebilirsin",
+    themeSection:           "Görünüm",
+    themeSystem:            "Sistem Varsayılanı",
+    themeRecommended:       "Önerilen",
+    filterAll:              "Tümü",
+    filterCategories:       "Kategoriler",
+    rateApp:                "Uygulamayı Puanla",
+    rateAppSub:             "App Store'da geri bildiriminizi paylaşın",
+    rateAppPopupTitle:      "Uygulamayı seviyor musun?",
+    rateAppPopupMessage:    "Kısa bir değerlendirme büyümemize ve tarifleri iyileştirmemize yardımcı olur.",
+    rateNow:                "Şimdi Puan Ver ★",
+    notNow:                 "Şimdi Değil",
+    updateAvailableTitle:   "Güncelleme Mevcut",
+    updateAvailableMessage: "%@ sürümü kullanılabilir.",
+    updateCurrentVersion:   "Mevcut sürüm: %@",
+    updateNow:              "Güncelle",
+    updateLater:            "Sonra"
 )
 
 private let spanishTranslations = Translations(
@@ -501,7 +575,29 @@ private let spanishTranslations = Translations(
     eveningReminder:        "Noche",
     notifPermissionDenied:  "Activa las notificaciones en Ajustes",
     addSecondReminder:      "Añadir segundo recordatorio",
-    removeSecondReminder:   "Quitar segundo recordatorio"
+    removeSecondReminder:   "Quitar segundo recordatorio",
+    themeOnboardingTitle:   "¿Cómo te gusta?",
+    themeOnboardingSubtitle: "Elige el aspecto que prefieras. Puedes cambiarlo en Ajustes.",
+    themeLight:             "Claro",
+    themeDark:              "Oscuro",
+    themeContinue:          "Continuar",
+    themeChangeHint:        "Puedes cambiarlo en cualquier momento en Ajustes → Apariencia",
+    themeSection:           "Apariencia",
+    themeSystem:            "Por defecto del sistema",
+    themeRecommended:       "Recomendado",
+    filterAll:              "Todos",
+    filterCategories:       "Categorías",
+    rateApp:                "Calificar la App",
+    rateAppSub:             "Comparte tu opinión en el App Store",
+    rateAppPopupTitle:      "¿Te gusta la app?",
+    rateAppPopupMessage:    "Una calificación rápida nos ayuda a crecer y mejorar las recetas.",
+    rateNow:                "Calificar Ahora ★",
+    notNow:                 "Ahora no",
+    updateAvailableTitle:   "Actualización Disponible",
+    updateAvailableMessage: "La versión %@ ya está disponible.",
+    updateCurrentVersion:   "Tienes la versión %@",
+    updateNow:              "Actualizar Ahora",
+    updateLater:            "Después"
 )
 
 private let frenchTranslations = Translations(
@@ -601,7 +697,29 @@ private let frenchTranslations = Translations(
     eveningReminder:        "Soir",
     notifPermissionDenied:  "Activez les notifications dans Réglages",
     addSecondReminder:      "Ajouter un 2e rappel",
-    removeSecondReminder:   "Supprimer le 2e rappel"
+    removeSecondReminder:   "Supprimer le 2e rappel",
+    themeOnboardingTitle:   "Quel style vous plaît ?",
+    themeOnboardingSubtitle: "Choisissez l'apparence qui vous convient. Vous pourrez la modifier dans Réglages.",
+    themeLight:             "Clair",
+    themeDark:              "Sombre",
+    themeContinue:          "Continuer",
+    themeChangeHint:        "Vous pouvez changer cela à tout moment dans Réglages → Apparence",
+    themeSection:           "Apparence",
+    themeSystem:            "Par défaut du système",
+    themeRecommended:       "Recommandé",
+    filterAll:              "Tous",
+    filterCategories:       "Catégories",
+    rateApp:                "Noter l'App",
+    rateAppSub:             "Partagez votre avis sur l'App Store",
+    rateAppPopupTitle:      "Vous appréciez l'app ?",
+    rateAppPopupMessage:    "Une note rapide nous aide à grandir et améliorer les recettes.",
+    rateNow:                "Noter Maintenant ★",
+    notNow:                 "Pas maintenant",
+    updateAvailableTitle:   "Mise à Jour Disponible",
+    updateAvailableMessage: "La version %@ est disponible.",
+    updateCurrentVersion:   "Vous avez la version %@",
+    updateNow:              "Mettre à Jour",
+    updateLater:            "Plus tard"
 )
 
 private let italianTranslations = Translations(
@@ -701,5 +819,27 @@ private let italianTranslations = Translations(
     eveningReminder:        "Sera",
     notifPermissionDenied:  "Attiva le notifiche nelle Impostazioni",
     addSecondReminder:      "Aggiungi secondo promemoria",
-    removeSecondReminder:   "Rimuovi secondo promemoria"
+    removeSecondReminder:   "Rimuovi secondo promemoria",
+    themeOnboardingTitle:   "Come preferisci?",
+    themeOnboardingSubtitle: "Scegli l'aspetto che preferisci. Potrai cambiarlo nelle Impostazioni.",
+    themeLight:             "Chiaro",
+    themeDark:              "Scuro",
+    themeContinue:          "Continua",
+    themeChangeHint:        "Puoi cambiarlo in qualsiasi momento in Impostazioni → Aspetto",
+    themeSection:           "Aspetto",
+    themeSystem:            "Predefinito di sistema",
+    themeRecommended:       "Consigliato",
+    filterAll:              "Tutti",
+    filterCategories:       "Categorie",
+    rateApp:                "Valuta l'App",
+    rateAppSub:             "Condividi il tuo parere sull'App Store",
+    rateAppPopupTitle:      "Ti piace l'app?",
+    rateAppPopupMessage:    "Una valutazione rapida ci aiuta a crescere e migliorare le ricette.",
+    rateNow:                "Valuta Ora ★",
+    notNow:                 "Non ora",
+    updateAvailableTitle:   "Aggiornamento Disponibile",
+    updateAvailableMessage: "La versione %@ è disponibile.",
+    updateCurrentVersion:   "Hai la versione %@",
+    updateNow:              "Aggiorna Ora",
+    updateLater:            "Più tardi"
 )

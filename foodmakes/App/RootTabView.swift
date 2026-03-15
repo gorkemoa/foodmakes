@@ -14,6 +14,10 @@ struct RootTabView: View {
     @State private var homeViewModel: HomeViewModel
     private var lm: LanguageManager { LanguageManager.shared }
 
+    // Services
+    private let ratingService = AppRatingService.shared
+    private let updateChecker = AppUpdateChecker.shared
+
     init(repository: MealRepository) {
         self.repository = repository
         _homeViewModel = State(initialValue: HomeViewModel(
@@ -52,6 +56,37 @@ struct RootTabView: View {
         // Single download dialog for the whole app — driven by TranslationDownloadManager
         .translationTask(TranslationDownloadManager.shared.pendingConfig) { _ in
             await MainActor.run { TranslationDownloadManager.shared.onDownloadCompleted() }
+        }
+        // Update alert overlay
+        .overlay {
+            if updateChecker.showUpdateAlert {
+                AppUpdateAlertView(
+                    currentVersion: updateChecker.currentVersion,
+                    latestVersion:  updateChecker.latestVersion,
+                    onUpdate: { updateChecker.openStore() },
+                    onLater:  { updateChecker.dismissUpdate() }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .zIndex(100)
+            }
+        }
+        // Rating prompt overlay
+        .overlay {
+            if ratingService.showRatingPrompt {
+                AppRatingPromptView {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        ratingService.dismissPrompt()
+                    }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                .zIndex(99)
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: updateChecker.showUpdateAlert)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: ratingService.showRatingPrompt)
+        .task {
+            // Check for app update in background
+            await updateChecker.checkForUpdate()
         }
     }
 }

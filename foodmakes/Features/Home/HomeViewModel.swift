@@ -23,10 +23,6 @@ final class HomeViewModel {
     private let service: MealService
     private(set) var repository: MealRepository
 
-    // MARK: - Categories to cycle through
-    private let categories = ["Seafood", "Chicken", "Beef", "Vegetarian", "Pasta", "Dessert", "Lamb"]
-    private var categoryIndex = 0
-
     init(service: MealService, repository: MealRepository) {
         self.service = service
         self.repository = repository
@@ -36,15 +32,15 @@ final class HomeViewModel {
     func loadMeals() async {
         loadState = .loading
         do {
-            let swipedIds = (try? repository.fetchSwipedIds()) ?? []
-            let category = categories[categoryIndex % categories.count]
-            categoryIndex += 1
-            let fetched = try await service.fetchMeals(category: category)
-            let filtered = fetched.filter { !swipedIds.contains($0.id) }
-            if filtered.isEmpty {
+            let swipedIds = Set((try? repository.fetchSwipedIds()) ?? [])
+            // Fetch more than needed so we have enough after filtering already-swiped meals
+            var batch = try await service.fetchRandomMeals(count: 20)
+            batch = batch.filter { !swipedIds.contains($0.id) }
+
+            if batch.isEmpty {
                 loadState = .empty
             } else {
-                meals = filtered.shuffled()
+                meals = batch
                 loadState = .loaded(meals)
             }
         } catch {

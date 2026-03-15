@@ -138,64 +138,70 @@ private struct AdStampLabel: View {
 }
 
 // MARK: - UIKit GADNativeAdView wrapper
-//
-// Critical design choice: makeUIView returns a plain UIView *container*, NOT
-// GADNativeAdView directly.  SwiftUI's frame/clipShape modifiers target the
-// outermost returned view.  If that were GADNativeAdView, SwiftUI would insert
-// an extra wrapper (e.g. _UIClippingView) between the hosting view and
-// GADNativeAdView, shifting the coordinate space that AdMob's validator uses
-// to confirm all asset views are inside the native ad view. Returning a plain
-// container leaves GADNativeAdView's bounds completely unmodified by SwiftUI.
+
+// NativeAdContainerView owns GADNativeAdView as a plain subview so SwiftUI
+// never wraps it with clipping or transform layers. The nativeAd assignment
+// happens inside layoutSubviews() after calling adView.layoutIfNeeded(),
+// guaranteeing that every registered asset-view frame is non-zero before
+// AdMob's containment validator runs.
 private struct NativeAdUIViewRepresentable: UIViewRepresentable {
 
     let ad: GADNativeAd
 
-    // Coordinator holds a stable reference to GADNativeAdView across updates.
-    final class Coordinator {
-        var adView: GADNativeAdView?
+    func makeUIView(context: Context) -> NativeAdContainerView {
+        NativeAdContainerView()
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func updateUIView(_ uiView: NativeAdContainerView, context: Context) {
+        uiView.update(ad: ad)
+    }
+}
 
-    func makeUIView(context: Context) -> UIView {
-        let container = UIView()
-        container.backgroundColor = .clear
+// MARK: -
 
-        let adView = buildAdView()
-        context.coordinator.adView = adView
+private final class NativeAdContainerView: UIView {
 
-        adView.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(adView)
-        NSLayoutConstraint.activate([
-            adView.topAnchor.constraint(equalTo: container.topAnchor),
-            adView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            adView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            adView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-        ])
-        return container
+    private let adView = GADNativeAdView()
+    private var pendingAd: GADNativeAd?
+    private var populatedAdID: ObjectIdentifier?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        buildAdView()
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
-        guard let adView = context.coordinator.adView else { return }
-        // Async dispatch lets UIKit complete the layout pass so all asset-view
-        // frames are non-zero when nativeAd is assigned (AdMob validates frames
-        // at assignment time using window-coordinate containment checks).
-        let snapshot = ad
-        DispatchQueue.main.async {
-            Self.populate(adView, with: snapshot)
-        }
+    required init?(coder: NSCoder) { fatalError() }
+
+    func update(ad: GADNativeAd) {
+        let id = ObjectIdentifier(ad)
+        guard id != populatedAdID else { return }
+        pendingAd = ad
+        setNeedsLayout()
     }
 
-    // MARK: - Ad view construction
+    // layoutSubviews is the earliest point at which the adView and all its
+    // subviews have resolved frames. Calling adView.layoutIfNeeded() first
+    // forces adView's own layout pass synchronously, making every asset frame
+    // non-zero before nativeAd is assigned.
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let ad = pendingAd, bounds.width > 0 else { return }
+        pendingAd = nil
+        populatedAdID = ObjectIdentifier(ad)
+        adView.layoutIfNeeded()
+        populateAdView(with: ad)
+    }
 
-    private func buildAdView() -> GADNativeAdView {
-        let adView = GADNativeAdView()
+    // MARK: - Construction
+
+    private func buildAdView() {
         adView.clipsToBounds = true
         adView.backgroundColor = .black
         adView.layer.cornerRadius = 22
         adView.layer.cornerCurve = .continuous
 
-        // ── Media (fills the card) ────────────────────────────────────────
+        // ── Media ─────────────────────────────────────────────────────────
         let mediaView = GADMediaView()
         mediaView.translatesAutoresizingMaskIntoConstraints = false
         mediaView.contentMode = .scaleAspectFill
@@ -203,7 +209,7 @@ private struct NativeAdUIViewRepresentable: UIViewRepresentable {
         adView.mediaView = mediaView
         adView.addSubview(mediaView)
 
-        // ── Bottom gradient overlay ───────────────────────────────────────
+        // ── Gradient overlay ──────────────────────────────────────────────
         let gradient = AdGradientView()
         gradient.translatesAutoresizingMaskIntoConstraints = false
         gradient.isUserInteractionEnabled = false
@@ -251,40 +257,59 @@ private struct NativeAdUIViewRepresentable: UIViewRepresentable {
         adView.callToActionView = ctaButton
         adView.addSubview(ctaButton)
 
-        // ── Auto Layout ───────────────────────────────────────────────────
+        // ── Constraints: adView fills container ───────────────────────────
+        adView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(adView)
         NSLayoutConstraint.activate([
+            adView.topAnchor.constraint(equalTo: topAnchor),
+            adView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            adView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            adView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+
+        // ── Constraints: NON-OVERLAPPING asset layout ─────────────────────
+        // AdMob rule: no registered asset view (mediaView, advertiserView,
+        // headlineView, bodyView, callToActionView) may overlap another
+        // registered asset. mediaView occupies the top 58%; all text assets
+        // are stacked below it in the remaining 42% — zero frame overlap.
+        NSLayoutConstraint.activate([
+            // Media: top 58% of card
             mediaView.topAnchor.constraint(equalTo: adView.topAnchor),
             mediaView.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
             mediaView.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
-            mediaView.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
+            mediaView.heightAnchor.constraint(equalTo: adView.heightAnchor, multiplier: 0.58),
 
-            gradient.topAnchor.constraint(equalTo: adView.topAnchor),
+            // Gradient: decoration over bottom edge of media only (not an asset)
             gradient.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
             gradient.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
-            gradient.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
+            gradient.bottomAnchor.constraint(equalTo: mediaView.bottomAnchor),
+            gradient.heightAnchor.constraint(equalTo: mediaView.heightAnchor, multiplier: 0.35),
 
-            ctaButton.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 24),
-            ctaButton.bottomAnchor.constraint(equalTo: adView.bottomAnchor, constant: -28),
+            // Advertiser: first row below media
+            advertiserLabel.topAnchor.constraint(equalTo: mediaView.bottomAnchor, constant: 14),
+            advertiserLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 20),
+            advertiserLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -20),
 
-            bodyLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 24),
-            bodyLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -24),
-            bodyLabel.bottomAnchor.constraint(equalTo: ctaButton.topAnchor, constant: -10),
+            // Headline: below advertiser
+            headlineLabel.topAnchor.constraint(equalTo: advertiserLabel.bottomAnchor, constant: 4),
+            headlineLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 20),
+            headlineLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -20),
 
-            headlineLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 24),
-            headlineLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -24),
-            headlineLabel.bottomAnchor.constraint(equalTo: bodyLabel.topAnchor, constant: -6),
+            // Body: below headline
+            bodyLabel.topAnchor.constraint(equalTo: headlineLabel.bottomAnchor, constant: 6),
+            bodyLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 20),
+            bodyLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -20),
 
-            advertiserLabel.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 24),
-            advertiserLabel.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -24),
-            advertiserLabel.bottomAnchor.constraint(equalTo: headlineLabel.topAnchor, constant: -6),
+            // CTA: below body, must not exceed card bottom
+            ctaButton.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 14),
+            ctaButton.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 20),
+            ctaButton.bottomAnchor.constraint(lessThanOrEqualTo: adView.bottomAnchor, constant: -20),
         ])
-
-        return adView
     }
 
     // MARK: - Population
 
-    private static func populate(_ adView: GADNativeAdView, with ad: GADNativeAd) {
+    private func populateAdView(with ad: GADNativeAd) {
         if let label = adView.advertiserView as? UILabel {
             let kern: [NSAttributedString.Key: Any] = [
                 .kern: CGFloat(1.8),
@@ -305,7 +330,7 @@ private struct NativeAdUIViewRepresentable: UIViewRepresentable {
             btn.setTitle(ad.callToAction, for: .normal)
         }
         adView.mediaView?.mediaContent = ad.mediaContent
-        // nativeAd must be assigned LAST — after all asset views are populated
+        // nativeAd MUST be last — triggers AdMob's asset-containment validation
         adView.nativeAd = ad
     }
 }
