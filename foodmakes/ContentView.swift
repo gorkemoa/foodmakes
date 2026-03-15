@@ -6,19 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 
-struct ContentView: View {
+// AppRootView wires the ModelContext into MealRepository and boots the tab bar
+struct AppRootView: View {
+    @Environment(\.modelContext) private var modelContext
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        RootTabView(repository: MealRepository(context: modelContext))
     }
 }
 
 #Preview {
-    ContentView()
+    AppRootView()
+        .modelContainer(for: [
+            PersistedTryMeal.self,
+            PersistedDislikedMeal.self,
+            SwipedRecord.self
+        ], inMemory: true)
 }

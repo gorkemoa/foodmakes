@@ -6,12 +6,29 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct foodmakesApp: App {
+
+    let container: ModelContainer = {
+        let schema = Schema([
+            PersistedTryMeal.self,
+            PersistedDislikedMeal.self,
+            SwipedRecord.self
+        ])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        do {
+            return try ModelContainer(for: schema, configurations: config)
+        } catch {
+            fatalError("SwiftData container could not be created: \(error)")
+        }
+    }()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRootView()
+                .modelContainer(container)
         }
     }
 }
