@@ -59,6 +59,31 @@ final class SwipedRecord {
     }
 }
 
+// MARK: - PersistedMealPlan
+@Model
+final class PersistedMealPlan {
+    var planId: String          // unique UUID
+    var mealId: String
+    var mealName: String
+    var thumbnailURL: String?
+    var plannedDate: Date
+    var morningNotifId: String
+    var eveningNotifId: String
+    var addedAt: Date
+
+    init(mealId: String, mealName: String, thumbnailURL: String?,
+         plannedDate: Date, morningNotifId: String, eveningNotifId: String) {
+        self.planId        = UUID().uuidString
+        self.mealId        = mealId
+        self.mealName      = mealName
+        self.thumbnailURL  = thumbnailURL
+        self.plannedDate   = plannedDate
+        self.morningNotifId = morningNotifId
+        self.eveningNotifId = eveningNotifId
+        self.addedAt       = .now
+    }
+}
+
 // MARK: - PersistedMealRating
 @Model
 final class PersistedMealRating {

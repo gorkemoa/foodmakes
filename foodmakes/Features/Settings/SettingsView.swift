@@ -19,6 +19,7 @@ struct SettingsView: View {
                     VStack(spacing: 22) {
                         appHeader
                         languageSection
+                        notificationsSection
                         dataManagementSection
                         aboutSection
                         Color.clear.frame(height: 60)
@@ -149,6 +150,120 @@ struct SettingsView: View {
         needsDownload = toDownload
     }
 
+    // MARK: - Notifications Section
+    private var notificationsSection: some View {
+        SettingsSection(title: lm.t.notificationsTitle, icon: "bell.fill") {
+            VStack(spacing: 0) {
+                // Toggle row
+                HStack(spacing: 14) {
+                    settingsIcon("bell.badge", color: .warmOrange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(lm.t.dailyReminder)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.textPrimary)
+                        Text(lm.t.dailyReminderSub)
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: Binding(
+                        get: { viewModel.notificationsEnabled },
+                        set: { _ in Task { await viewModel.toggleNotifications() } }
+                    ))
+                    .labelsHidden()
+                    .tint(Color.warmOrange)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 13)
+
+                // Time picker row — only shown when enabled
+                if viewModel.notificationsEnabled {
+                    divider
+                    HStack(spacing: 14) {
+                        settingsIcon("clock.fill", color: .indigo)
+                        Text(lm.t.reminderTime)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.textPrimary)
+                        Spacer()
+                        DatePicker(
+                            "",
+                            selection: Binding(
+                                get: { viewModel.reminderDate },
+                                set: { viewModel.updateReminderTime($0) }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .accentColor(Color.warmOrange)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+            }
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.notificationsEnabled)
+
+            // Meal Plan Reminders
+            VStack(alignment: .leading, spacing: 8) {
+                Text(lm.t.planReminders.uppercased())
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.textSecondary)
+                    .tracking(0.5)
+                    .padding(.leading, 12)
+
+                VStack(spacing: 0) {
+                    // Morning Picker
+                    HStack(spacing: 14) {
+                        settingsIcon("sunrise.fill", color: .warmOrange)
+                        Text(lm.t.morningReminder)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.textPrimary)
+                        Spacer()
+                        DatePicker(
+                            "",
+                            selection: Binding(
+                                get: { viewModel.planMorningDate },
+                                set: { viewModel.updatePlanMorningTime($0) }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .accentColor(Color.warmOrange)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+
+                    divider
+
+                    // Evening Picker
+                    HStack(spacing: 14) {
+                        settingsIcon("sunset.fill", color: .indigo)
+                        Text(lm.t.eveningReminder)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.textPrimary)
+                        Spacer()
+                        DatePicker(
+                            "",
+                            selection: Binding(
+                                get: { viewModel.planEveningDate },
+                                set: { viewModel.updatePlanEveningTime($0) }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .accentColor(Color.warmOrange)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .padding(.top, 8)
+        }
+    }
+
     // MARK: - Data Management Section
     private var dataManagementSection: some View {
         SettingsSection(title: lm.t.dataManagement, icon: "externaldrive.fill") {
@@ -160,6 +275,16 @@ struct SettingsView: View {
                     subtitle: lm.t.clearTryListSub,
                     isDestructive: false
                 ) { viewModel.showClearTryConfirm = true }
+
+                divider
+
+                settingsRow(
+                    icon: "calendar.badge.minus",
+                    iconColor: .warmOrange,
+                    title: lm.t.clearMealPlan,
+                    subtitle: lm.t.clearMealPlanSub,
+                    isDestructive: false
+                ) { viewModel.showClearPlanConfirm = true }
 
                 divider
 
@@ -196,6 +321,9 @@ struct SettingsView: View {
         }
         .confirmationDialog(lm.t.clearTryConfirm, isPresented: $viewModel.showClearTryConfirm, titleVisibility: .visible) {
             Button(lm.t.clearAll, role: .destructive) { viewModel.clearTryList() }
+        }
+        .confirmationDialog(lm.t.clearMealPlanConfirm, isPresented: $viewModel.showClearPlanConfirm, titleVisibility: .visible) {
+            Button(lm.t.clearAll, role: .destructive) { viewModel.clearMealPlan() }
         }
         .confirmationDialog(lm.t.clearDislikedConfirm, isPresented: $viewModel.showClearDislikedConfirm, titleVisibility: .visible) {
             Button(lm.t.clearAll, role: .destructive) { viewModel.clearDisliked() }

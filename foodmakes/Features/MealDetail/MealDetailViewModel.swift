@@ -12,6 +12,12 @@ final class MealDetailViewModel {
     var isLoadingDetail = false
     var rating: PersistedMealRating? = nil
 
+    // Plan
+    var isPlanned: Bool = false
+    var showAddToPlanSheet = false
+    var planToastMessage: String?
+    var showPlanToast = false
+
     private let repository: MealRepository
     private let service: MealService
 
@@ -34,8 +40,9 @@ final class MealDetailViewModel {
 
     func refreshStatus() {
         isInTryList = repository.isInTryList(id: meal.id)
-        isDisliked = repository.isDisliked(id: meal.id)
-        rating = try? repository.fetchRating(mealId: meal.id)
+        isDisliked  = repository.isDisliked(id: meal.id)
+        isPlanned   = repository.isPlanned(mealId: meal.id)
+        rating      = try? repository.fetchRating(mealId: meal.id)
     }
 
     func toggleTryList() {
@@ -47,6 +54,27 @@ final class MealDetailViewModel {
             }
             refreshStatus()
         } catch { print("[MealDetailVM] toggleTryList error: \(error)") }
+    }
+
+    func addToPlan(date: Date) {
+        let nm  = NotificationManager.shared
+        let ids = nm.scheduleMealPlanNotifications(mealId: meal.id, mealName: meal.name, date: date)
+        do {
+            try repository.addToPlan(
+                mealId: meal.id, mealName: meal.name, thumbnailURL: meal.thumbnailURL,
+                plannedDate: date, morningNotifId: ids.morningId, eveningNotifId: ids.eveningId
+            )
+            refreshStatus()
+            triggerPlanToast(LanguageManager.shared.t.mealPlanAdded)
+        } catch { print("[MealDetailVM] addToPlan error: \(error)") }
+    }
+
+    private func triggerPlanToast(_ message: String) {
+        planToastMessage = message
+        showPlanToast    = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+            withAnimation { self?.showPlanToast = false }
+        }
     }
 
     func saveRating(overallScore: Int, tasteScore: Int, wouldEatAgain: Bool, wouldRecommend: Bool) {

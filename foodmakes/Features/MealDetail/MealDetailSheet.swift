@@ -36,8 +36,28 @@ struct MealDetailSheet: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
+            .overlay(alignment: .bottom) {
+                if viewModel.showPlanToast, let msg = viewModel.planToastMessage {
+                    Text(msg)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color(.label).opacity(0.88))
+                        .clipShape(Capsule())
+                        .shadow(color: .black.opacity(0.18), radius: 12, x: 0, y: 6)
+                        .padding(.bottom, 24)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.showPlanToast)
             .navigationDestination(isPresented: $showFullDetail) {
                 MealDetailView(meal: viewModel.meal, repository: repository)
+            }
+            .sheet(isPresented: $viewModel.showAddToPlanSheet) {
+                AddToPlanSheet(mealName: viewModel.meal.name) { date in
+                    viewModel.addToPlan(date: date)
+                }
             }
         }
         .task { await viewModel.loadDetailIfNeeded() }
@@ -68,6 +88,18 @@ struct MealDetailSheet: View {
                     .clipShape(Circle())
             }
             Spacer()
+            // Calendar / Add-to-plan
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                viewModel.showAddToPlanSheet = true
+            } label: {
+                Image(systemName: viewModel.isPlanned ? "calendar.badge.checkmark" : "calendar.badge.plus")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(viewModel.isPlanned ? Color.warmOrange : Color(.label))
+                    .frame(width: 34, height: 34)
+                    .background(Color(.secondarySystemFill))
+                    .clipShape(Circle())
+            }
             Button { showFullDetail = true } label: {
                 HStack(spacing: 6) {
                     Text(lm.t.viewFullRecipe)

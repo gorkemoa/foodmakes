@@ -42,9 +42,9 @@ struct RootTabView: View {
                 }
                 .tag(2)
 
-            SettingsView(repository: repository)
+            MealPlanView(repository: repository)
                 .tabItem {
-                    Label(lm.t.tabSettings, systemImage: selectedTab == 3 ? "gearshape.fill" : "gearshape")
+                    Label(lm.t.tabMealPlan, systemImage: selectedTab == 3 ? "calendar.badge.clock" : "calendar")
                 }
                 .tag(3)
         }

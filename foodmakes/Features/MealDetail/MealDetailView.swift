@@ -29,9 +29,33 @@ struct MealDetailView: View {
 
             // ── Floating nav row ─────────────────────────────────────────
             floatingNavBar
+
+            // ── Plan toast ───────────────────────────────────────────────────────
+            if viewModel.showPlanToast, let msg = viewModel.planToastMessage {
+                VStack {
+                    Spacer()
+                    Text(msg)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.deepBrown.opacity(0.92))
+                        .clipShape(Capsule())
+                        .shadow(color: .black.opacity(0.20), radius: 16, x: 0, y: 8)
+                        .padding(.bottom, 48)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(10)
+            }
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.showPlanToast)
         .navigationBarHidden(true)
         .task { await viewModel.loadDetailIfNeeded() }
+        .sheet(isPresented: $viewModel.showAddToPlanSheet) {
+            AddToPlanSheet(mealName: viewModel.meal.name) { date in
+                viewModel.addToPlan(date: date)
+            }
+        }
     }
 
     // MARK: - Hero
@@ -280,20 +304,34 @@ struct MealDetailView: View {
 
             Spacer()
 
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) { heartScale = 1.4 }
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6).delay(0.12)) { heartScale = 1 }
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                viewModel.toggleTryList()
-            } label: {
-                Image(systemName: viewModel.isInTryList ? "heart.fill" : "heart")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(viewModel.isInTryList ? Color.tryGreen : Color(.label))
-                    .scaleEffect(heartScale)
-                    .frame(width: 40, height: 40)
-                    .background(Color(.systemBackground))
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.10), radius: 10, x: 0, y: 3)
+            HStack(spacing: 10) {
+                // Calendar / Add-to-plan button
+                Button { viewModel.showAddToPlanSheet = true } label: {
+                    Image(systemName: viewModel.isPlanned ? "calendar.badge.checkmark" : "calendar.badge.plus")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(viewModel.isPlanned ? Color.warmOrange : Color(.label))
+                        .frame(width: 40, height: 40)
+                        .background(Color(.systemBackground))
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.10), radius: 10, x: 0, y: 3)
+                }
+
+                // Heart / Try-list button
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) { heartScale = 1.4 }
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6).delay(0.12)) { heartScale = 1 }
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    viewModel.toggleTryList()
+                } label: {
+                    Image(systemName: viewModel.isInTryList ? "heart.fill" : "heart")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(viewModel.isInTryList ? Color.tryGreen : Color(.label))
+                        .scaleEffect(heartScale)
+                        .frame(width: 40, height: 40)
+                        .background(Color(.systemBackground))
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.10), radius: 10, x: 0, y: 3)
+                }
             }
         }
         .padding(.horizontal, 20)

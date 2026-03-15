@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct foodmakesApp: App {
@@ -16,7 +17,8 @@ struct foodmakesApp: App {
             PersistedTryMeal.self,
             PersistedDislikedMeal.self,
             SwipedRecord.self,
-            PersistedMealRating.self
+            PersistedMealRating.self,
+            PersistedMealPlan.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
@@ -30,6 +32,14 @@ struct foodmakesApp: App {
         WindowGroup {
             AppRootView()
                 .modelContainer(container)
+                .task {
+                    // Request notification permission once on first launch.
+                    // If granted and user had a reminder enabled, reschedule it.
+                    let granted = await NotificationManager.shared.requestPermission()
+                    if granted && NotificationManager.shared.isEnabled {
+                        NotificationManager.shared.scheduleDaily()
+                    }
+                }
         }
     }
 }

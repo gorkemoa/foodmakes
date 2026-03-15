@@ -6,6 +6,7 @@ struct HomeView: View {
     @State private var selectedMeal: Meal?
     @State private var toastMeal: Meal?
     @State private var showToast = false
+    @State private var showSettings = false
     private var lm: LanguageManager { LanguageManager.shared }
 
     init(viewModel: HomeViewModel) {
@@ -29,6 +30,9 @@ struct HomeView: View {
             .background(Color(.systemBackground).ignoresSafeArea())
             .navigationBarHidden(true)
             .task { await viewModel.loadMeals() }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(repository: viewModel.repository)
+            }
             .navigationDestination(isPresented: $showDetail) {
                 if let meal = selectedMeal {
                     MealDetailView(meal: meal, repository: viewModel.repository)
@@ -77,14 +81,23 @@ struct HomeView: View {
                     .kerning(0.1)
             }
             Spacer()
-            if case .loaded = viewModel.loadState, !viewModel.meals.isEmpty {
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text("\(viewModel.meals.count)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.textPrimary)
-                    Text(lm.t.mealsLeft)
-                        .font(.system(size: 11))
+            HStack(spacing: 12) {
+                if case .loaded = viewModel.loadState, !viewModel.meals.isEmpty {
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text("\(viewModel.meals.count)")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.textPrimary)
+                        Text(lm.t.mealsLeft)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.textSecondary)
+                    }
+                }
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 17, weight: .medium))
                         .foregroundStyle(Color.textSecondary)
+                        .frame(width: 36, height: 36)
+                        .contentShape(Rectangle())
                 }
             }
         }

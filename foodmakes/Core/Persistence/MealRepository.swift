@@ -148,5 +148,60 @@ final class MealRepository {
         try clearDisliked()
         try clearSwipeHistory()
         try clearRatings()
+        try clearMealPlan()
+    }
+
+    // MARK: - Meal Plan
+
+    func addToPlan(mealId: String, mealName: String, thumbnailURL: String?,
+                   plannedDate: Date, morningNotifId: String, eveningNotifId: String) throws {
+        let dayStart = Calendar.current.startOfDay(for: plannedDate)
+        let dayEnd   = Calendar.current.date(byAdding: .day, value: 1, to: dayStart)!
+        let mId = mealId
+        let existing = try context.fetch(
+            FetchDescriptor<PersistedMealPlan>(
+                predicate: #Predicate { $0.mealId == mId && $0.plannedDate >= dayStart && $0.plannedDate < dayEnd }
+            )
+        )
+        guard existing.isEmpty else { return }
+        context.insert(PersistedMealPlan(
+            mealId: mealId, mealName: mealName, thumbnailURL: thumbnailURL,
+            plannedDate: plannedDate, morningNotifId: morningNotifId, eveningNotifId: eveningNotifId
+        ))
+        try context.save()
+    }
+
+    /// Returns the notification IDs that were removed so caller can cancel them.
+    @discardableResult
+    func removeFromPlan(planId: String) throws -> (morningNotifId: String, eveningNotifId: String)? {
+        let pId = planId
+        let items = try context.fetch(
+            FetchDescriptor<PersistedMealPlan>(predicate: #Predicate { $0.planId == pId })
+        )
+        guard let item = items.first else { return nil }
+        let ids = (item.morningNotifId, item.eveningNotifId)
+        context.delete(item)
+        try context.save()
+        return ids
+    }
+
+    func fetchPlan() throws -> [PersistedMealPlan] {
+        try context.fetch(FetchDescriptor<PersistedMealPlan>(
+            sortBy: [SortDescriptor(\.plannedDate)]
+        ))
+    }
+
+    func isPlanned(mealId: String) -> Bool {
+        let mId = mealId
+        let desc = FetchDescriptor<PersistedMealPlan>(predicate: #Predicate { $0.mealId == mId })
+        return (try? context.fetchCount(desc)) ?? 0 > 0
+    }
+
+    func clearMealPlan() throws {
+        let plans = try context.fetch(FetchDescriptor<PersistedMealPlan>())
+        let allIds = plans.flatMap { [$0.morningNotifId, $0.eveningNotifId] }
+        NotificationManager.shared.cancelNotifications(ids: allIds)
+        plans.forEach { context.delete($0) }
+        try context.save()
     }
 }

@@ -126,6 +126,36 @@ struct Translations {
 
     // Category grouping
     let categoryOther: String
+
+    // Meal Plan
+    let tabMealPlan: String
+    let mealPlanTitle: String
+    let addToPlan: String
+    let selectDate: String
+    let planReminderNote: String
+    let confirmPlan: String
+    let noMealsPlanned: String
+    let noMealsPlannedHint: String
+    let mealPlanAdded: String
+    let upcomingPlans: String
+    let pastPlans: String
+    let clearMealPlan: String
+    let clearMealPlanSub: String
+    let clearMealPlanConfirm: String
+    let toastMealPlanCleared: String
+
+    // Notifications
+    let notificationsTitle: String
+    let dailyReminder: String
+    let dailyReminderSub: String
+    let reminderTime: String
+    let toastNotifEnabled: String
+    let toastNotifDisabled: String
+    let planReminders: String
+    let planRemindersSub: String
+    let morningReminder: String
+    let eveningReminder: String
+    let notifPermissionDenied: String
 }
 
 // MARK: - Language Manager
@@ -241,7 +271,33 @@ private let englishTranslations = Translations(
     sheetDismissHint:       "Tap × to close · or swipe down",
     addedToLiked:           "Added to Liked",
     goToDetail:             "View",
-    categoryOther:          "Other"
+    categoryOther:          "Other",
+    tabMealPlan:            "Meal Plan",
+    mealPlanTitle:          "Meal Plan",
+    addToPlan:              "Add to Plan",
+    selectDate:             "Select Date",
+    planReminderNote:       "You'll be reminded at 8:00 AM and 6:00 PM",
+    confirmPlan:            "Add to Plan",
+    noMealsPlanned:         "No meals planned",
+    noMealsPlannedHint:     "Open a meal and tap the calendar icon to plan it.",
+    mealPlanAdded:          "Added to Meal Plan ✓",
+    upcomingPlans:          "Upcoming",
+    pastPlans:              "Past",
+    clearMealPlan:          "Clear Meal Plan",
+    clearMealPlanSub:       "Remove all planned meals",
+    clearMealPlanConfirm:   "Clear meal plan?",
+    toastMealPlanCleared:   "Meal plan cleared ✓",
+    notificationsTitle:     "Notifications",
+    dailyReminder:          "Daily Reminder",
+    dailyReminderSub:       "Get a meal suggestion every day",
+    reminderTime:           "Reminder Time",
+    toastNotifEnabled:      "Daily reminder enabled ✓",
+    toastNotifDisabled:     "Daily reminder disabled ✓",
+    planReminders:          "Plan Reminders",
+    planRemindersSub:       "Set times for your planned meals",
+    morningReminder:        "Morning",
+    eveningReminder:        "Evening",
+    notifPermissionDenied:  "Enable notifications in Settings app"
 )
 
 private let turkishTranslations = Translations(
@@ -313,7 +369,33 @@ private let turkishTranslations = Translations(
     sheetDismissHint:       "× ile kapat · veya aşağı kaydır",
     addedToLiked:           "Beğenilenlere eklendi",
     goToDetail:             "Detaya git",
-    categoryOther:          "Diğer"
+    categoryOther:          "Diğer",
+    tabMealPlan:            "Yemek Planı",
+    mealPlanTitle:          "Yemek Planı",
+    addToPlan:              "Plana Ekle",
+    selectDate:             "Tarih Seç",
+    planReminderNote:       "Sabah 08:00 ve akşam 18:00'de hatırlatılacaksın",
+    confirmPlan:            "Plana Ekle",
+    noMealsPlanned:         "Henüz plan yok",
+    noMealsPlannedHint:     "Bir yemek aç ve takvim ikonuna bas.",
+    mealPlanAdded:          "Plana eklendi ✓",
+    upcomingPlans:          "Yakında",
+    pastPlans:              "Geçmiş",
+    clearMealPlan:          "Yemek Planını Temizle",
+    clearMealPlanSub:       "Tüm planlanan yemekleri kaldır",
+    clearMealPlanConfirm:   "Yemek planı silinsin mi?",
+    toastMealPlanCleared:   "Yemek planı temizlendi ✓",
+    notificationsTitle:     "Bildirimler",
+    dailyReminder:          "Günlük Hatırlatıcı",
+    dailyReminderSub:       "Her gün yemek önerisi al",
+    reminderTime:           "Hatırlatma Saati",
+    toastNotifEnabled:      "Günlük hatırlatıcı etkinleştirildi ✓",
+    toastNotifDisabled:     "Günlük hatırlatıcı kapatıldı ✓",
+    planReminders:          "Plan Hatırlatıcıları",
+    planRemindersSub:       "Planlı yemekleriniz için saatleri belirleyin",
+    morningReminder:        "Sabah",
+    eveningReminder:        "Akşam",
+    notifPermissionDenied:  "Bildirimler için Ayarlar'ı aç"
 )
 
 private let spanishTranslations = Translations(
@@ -385,7 +467,33 @@ private let spanishTranslations = Translations(
     sheetDismissHint:       "Toca × para cerrar · o desliza abajo",
     addedToLiked:           "Añadido a Me Gusta",
     goToDetail:             "Ver detalle",
-    categoryOther:          "Otros"
+    categoryOther:          "Otros",
+    tabMealPlan:            "Plan de Comidas",
+    mealPlanTitle:          "Plan de Comidas",
+    addToPlan:              "Añadir al Plan",
+    selectDate:             "Seleccionar Fecha",
+    planReminderNote:       "Se te recordará a las 8:00 y a las 18:00",
+    confirmPlan:            "Añadir al Plan",
+    noMealsPlanned:         "Sin comidas planificadas",
+    noMealsPlannedHint:     "Abre una comida y toca el icono del calendario.",
+    mealPlanAdded:          "Añadido al plan ✓",
+    upcomingPlans:          "Próximas",
+    pastPlans:              "Pasadas",
+    clearMealPlan:          "Limpiar Plan de Comidas",
+    clearMealPlanSub:       "Eliminar todas las comidas planificadas",
+    clearMealPlanConfirm:   "¿Limpiar el plan?",
+    toastMealPlanCleared:   "Plan de comidas eliminado ✓",
+    notificationsTitle:     "Notificaciones",
+    dailyReminder:          "Recordatorio diario",
+    dailyReminderSub:       "Recibe una sugerencia de comida cada día",
+    reminderTime:           "Hora del recordatorio",
+    toastNotifEnabled:      "Recordatorio diario activado ✓",
+    toastNotifDisabled:     "Recordatorio diario desactivado ✓",
+    planReminders:          "Recordatorios del Plan",
+    planRemindersSub:       "Configura las horas para tus comidas planificadas",
+    morningReminder:        "Mañana",
+    eveningReminder:        "Noche",
+    notifPermissionDenied:  "Activa las notificaciones en Ajustes"
 )
 
 private let frenchTranslations = Translations(
@@ -457,7 +565,33 @@ private let frenchTranslations = Translations(
     sheetDismissHint:       "Appuyez sur × pour fermer · ou glissez vers le bas",
     addedToLiked:           "Ajouté aux favoris",
     goToDetail:             "Voir le détail",
-    categoryOther:          "Autre"
+    categoryOther:          "Autre",
+    tabMealPlan:            "Plan Repas",
+    mealPlanTitle:          "Plan Repas",
+    addToPlan:              "Ajouter au Plan",
+    selectDate:             "Sélectionner une date",
+    planReminderNote:       "Rappel à 8h00 et à 18h00",
+    confirmPlan:            "Ajouter au Plan",
+    noMealsPlanned:         "Aucun repas planifié",
+    noMealsPlannedHint:     "Ouvre un plat et appuie sur l’icône calendrier.",
+    mealPlanAdded:          "Ajouté au plan ✓",
+    upcomingPlans:          "À venir",
+    pastPlans:              "Passés",
+    clearMealPlan:          "Vider le Plan Repas",
+    clearMealPlanSub:       "Supprimer tous les repas planifiés",
+    clearMealPlanConfirm:   "Vider le plan ?",
+    toastMealPlanCleared:   "Plan repas vidé ✓",
+    notificationsTitle:     "Notifications",
+    dailyReminder:          "Rappel quotidien",
+    dailyReminderSub:       "Recevez une suggestion de plat chaque jour",
+    reminderTime:           "Heure du rappel",
+    toastNotifEnabled:      "Rappel quotidien activé ✓",
+    toastNotifDisabled:     "Rappel quotidien désactivé ✓",
+    planReminders:          "Rappels du Plan",
+    planRemindersSub:       "Définissez les heures pour vos repas planifiés",
+    morningReminder:        "Matin",
+    eveningReminder:        "Soir",
+    notifPermissionDenied:  "Activez les notifications dans Réglages"
 )
 
 private let italianTranslations = Translations(
@@ -529,5 +663,31 @@ private let italianTranslations = Translations(
     sheetDismissHint:       "Tocca × per chiudere · o scorri verso il basso",
     addedToLiked:           "Aggiunto ai preferiti",
     goToDetail:             "Vedi dettaglio",
-    categoryOther:          "Altro"
+    categoryOther:          "Altro",
+    tabMealPlan:            "Piano Pasti",
+    mealPlanTitle:          "Piano Pasti",
+    addToPlan:              "Aggiungi al Piano",
+    selectDate:             "Seleziona Data",
+    planReminderNote:       "Verrai ricordato alle 8:00 e alle 18:00",
+    confirmPlan:            "Aggiungi al Piano",
+    noMealsPlanned:         "Nessun pasto pianificato",
+    noMealsPlannedHint:     "Apri un pasto e tocca l’icona del calendario.",
+    mealPlanAdded:          "Aggiunto al piano ✓",
+    upcomingPlans:          "In arrivo",
+    pastPlans:              "Passati",
+    clearMealPlan:          "Svuota Piano Pasti",
+    clearMealPlanSub:       "Rimuovi tutti i pasti pianificati",
+    clearMealPlanConfirm:   "Svuotare il piano?",
+    toastMealPlanCleared:   "Piano pasti svuotato ✓",
+    notificationsTitle:     "Notifiche",
+    dailyReminder:          "Promemoria giornaliero",
+    dailyReminderSub:       "Ricevi un suggerimento di pasto ogni giorno",
+    reminderTime:           "Ora del promemoria",
+    toastNotifEnabled:      "Promemoria giornaliero attivato ✓",
+    toastNotifDisabled:     "Promemoria giornaliero disattivato ✓",
+    planReminders:          "Promemoria del Piano",
+    planRemindersSub:       "Imposta gli orari per i tuoi pasti pianificati",
+    morningReminder:        "Mattina",
+    eveningReminder:        "Sera",
+    notifPermissionDenied:  "Attiva le notifiche nelle Impostazioni"
 )
