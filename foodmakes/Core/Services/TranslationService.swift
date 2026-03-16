@@ -37,11 +37,16 @@ final class TranslationDownloadManager {
 
     /// Called from Settings download button — bypasses cooldown.
     func forcePrompt(for langCode: String) {
-        promptedThisSession = true
-        pendingConfig = TranslationSession.Configuration(
-            source: Locale.Language(identifier: "en"),
-            target: Locale.Language(identifier: langCode)
-        )
+        pendingConfig = nil // Reset first to ensure the bottom sheet can re-trigger
+        // IMPORTANT: We must NOT set promptedThisSession to true here, 
+        // as that might block future automatic prompts if the user cancels this one.
+        // Also, we use a slightly longer delay to ensure SwiftUI notices the 'nil' state.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.pendingConfig = TranslationSession.Configuration(
+                source: Locale.Language(identifier: "en"),
+                target: Locale.Language(identifier: langCode)
+            )
+        }
     }
 
     /// Called when RootTabView's .translationTask finishes.
@@ -88,49 +93,62 @@ struct TranslatedText: View {
 
     @State private var translated: String?
     @State private var translationConfig: TranslationSession.Configuration?
+    @State private var isDownloading = false
 
     private var lm: LanguageManager { LanguageManager.shared }
 
     var body: some View {
         let display = translated ?? original
-        Group {
-            if let ll = lineLimit {
-                Text(display)
-                    .font(font)
-                    .fontWeight(fontWeight)
-                    .foregroundStyle(color)
-                    .lineLimit(ll)
-            } else if fixedVertical {
-                Text(display)
-                    .font(font)
-                    .fontWeight(fontWeight)
-                    .foregroundStyle(color)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else {
-                Text(display)
-                    .font(font)
-                    .fontWeight(fontWeight)
-                    .foregroundStyle(color)
+        ZStack(alignment: .trailing) {
+            Group {
+                if let ll = lineLimit {
+                    Text(display)
+                        .font(font)
+                        .fontWeight(fontWeight)
+                        .foregroundStyle(color)
+                        .lineLimit(ll)
+                } else if fixedVertical {
+                    Text(display)
+                        .font(font)
+                        .fontWeight(fontWeight)
+                        .foregroundStyle(color)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text(display)
+                        .font(font)
+                        .fontWeight(fontWeight)
+                        .foregroundStyle(color)
+                }
+            }
+            .animation(.easeInOut(duration: 0.25), value: translated)
+
+            // Download Status Indicator (Compact)
+            if isDownloading {
+                downloadingIndicator
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: translated)
         // Re-run when language changes OR a download just finished (downloadRevision bumps)
         .task(id: "\(lm.current.rawValue):\(original):\(TranslationDownloadManager.shared.downloadRevision)") {
             translated = nil
             translationConfig = nil
+            isDownloading = false
+            
             guard lm.current != .english else { return }
             let langCode = lm.current.rawValue
             let key = "\(langCode):\(original)"
+            
             if let hit = await TranslationService.shared.cached(key: key) {
                 translated = hit
                 return
             }
+            
             // Check if the language pack is already on-device
             let availability = LanguageAvailability()
             let status = await availability.status(
                 from: Locale.Language(identifier: "en"),
                 to: Locale.Language(identifier: langCode)
             )
+            
             switch status {
             case .installed:
                 // Pack ready — translate silently (no dialog)
@@ -140,6 +158,7 @@ struct TranslatedText: View {
                 )
             case .supported:
                 // Pack not yet downloaded — notify coordinator (rate-limited dialog)
+                isDownloading = true
                 await MainActor.run {
                     TranslationDownloadManager.shared.promptIfAppropriate(for: langCode)
                 }
@@ -160,6 +179,23 @@ struct TranslatedText: View {
                 print("Apple Translation error: \(error)")
             }
         }
+    }
+
+    private var downloadingIndicator: some View {
+        HStack(spacing: 4) {
+            ProgressView()
+                .controlSize(.mini)
+                .tint(.warmOrange)
+            Image(systemName: "icloud.and.arrow.down")
+                .font(.system(size: 10))
+                .foregroundStyle(.warmOrange)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(Color(.secondarySystemBackground).opacity(0.8))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xs))
+        .padding(.trailing, -30) // Offset so it doesn't overlap text too much
+        .transition(.opacity.combined(with: .scale))
     }
 }
 

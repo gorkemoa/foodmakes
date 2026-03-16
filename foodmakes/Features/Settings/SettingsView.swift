@@ -4,6 +4,7 @@ import Translation
 struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
     @State private var needsDownload: Set<String> = []
+    @State private var showTranslationInfo = false
     private var lm: LanguageManager { LanguageManager.shared }
     private var themeManager: ThemeManager { ThemeManager.shared }
 
@@ -41,6 +42,11 @@ struct SettingsView: View {
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.showToast)
             .navigationTitle(lm.t.settingsTitle)
             .navigationBarTitleDisplayMode(.large)
+            .sheet(isPresented: $showTranslationInfo) {
+                TranslationInfoView()
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
 
@@ -120,6 +126,30 @@ struct SettingsView: View {
     private var languageSection: some View {
         SettingsSection(title: lm.t.language, icon: "globe") {
             VStack(spacing: 0) {
+                // Info Banner
+                Button {
+                    showTranslationInfo = true
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundStyle(.blue)
+                        Text("Çeviri sistemi nasıl çalışır?")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding(12)
+                    .background(Color.blue.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+
                 ForEach(Array(AppLanguage.allCases.enumerated()), id: \.1.rawValue) { idx, lang in
                     HStack(spacing: 0) {
                         // Language selection button

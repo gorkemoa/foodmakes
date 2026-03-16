@@ -54,7 +54,8 @@ struct RootTabView: View {
         }
         .tint(.warmOrange)
         // Single download dialog for the whole app — driven by TranslationDownloadManager
-        .translationTask(TranslationDownloadManager.shared.pendingConfig) { _ in
+        .translationTask(TranslationDownloadManager.shared.pendingConfig) { session in
+            try? await session.prepareTranslation() // Ensure background prep
             await MainActor.run { TranslationDownloadManager.shared.onDownloadCompleted() }
         }
         // Update alert overlay
