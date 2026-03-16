@@ -17,16 +17,12 @@ struct AppRootView: View {
         Group {
             if !themeManager.onboardingDone {
                 ThemeOnboardingView { chosen in
-                    withAnimation(.easeInOut(duration: 0.4)) {
-                        themeManager.preference = chosen
-                        themeManager.onboardingDone = true
-                    }
+                    themeManager.preference = chosen
+                    themeManager.onboardingDone = true
                 }
             } else if !themeManager.showcaseDone {
                 OnboardingView {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                        themeManager.showcaseDone = true
-                    }
+                    themeManager.showcaseDone = true
                 }
             } else {
                 RootTabView(repository: MealRepository(context: modelContext))

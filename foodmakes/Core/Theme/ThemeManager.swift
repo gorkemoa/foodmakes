@@ -40,16 +40,13 @@ final class ThemeManager {
     }
 
     /// False on first launch — triggers the theme onboarding screen
-    var onboardingDone: Bool {
-        get { UserDefaults.standard.bool(forKey: onboardingKey) }
-        set { UserDefaults.standard.set(newValue, forKey: onboardingKey) }
+    var onboardingDone: Bool = UserDefaults.standard.bool(forKey: "fm_theme_onboarding_done") {
+        didSet { UserDefaults.standard.set(onboardingDone, forKey: "fm_theme_onboarding_done") }
     }
 
     /// False on first launch — triggers the feature showcase onboarding
-    private let showcaseKey = "fm_showcase_done"
-    var showcaseDone: Bool {
-        get { UserDefaults.standard.bool(forKey: showcaseKey) }
-        set { UserDefaults.standard.set(newValue, forKey: showcaseKey) }
+    var showcaseDone: Bool = UserDefaults.standard.bool(forKey: "fm_showcase_done") {
+        didSet { UserDefaults.standard.set(showcaseDone, forKey: "fm_showcase_done") }
     }
 
     private init() {

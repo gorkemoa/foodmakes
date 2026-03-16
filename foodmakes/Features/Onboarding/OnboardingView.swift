@@ -126,7 +126,9 @@ struct OnboardingView: View {
 
             // CTA Button
             Button {
-                if currentIndex == 4 { withAnimation(.spring(response: 0.4)) { onFinish() } }
+                if currentIndex == 4 { 
+                    onFinish() 
+                }
                 else { go(to: currentIndex + 1) }
             } label: {
                 HStack(spacing: 8) {
