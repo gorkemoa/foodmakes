@@ -123,7 +123,8 @@ struct ThemeOnboardingView: View {
         recommended: Bool
     ) -> some View {
         let isSelected  = selected == theme
-        let isDarkMode  = selected == .dark
+        let isDarkModePreview = theme == .dark
+        let isSelectedDark = selected == .dark
 
         Button {
             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
@@ -134,25 +135,26 @@ struct ThemeOnboardingView: View {
                 // Mini UI preview panel
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(theme == .dark ? darkCard : Color(.systemBackground))
+                        .fill(isDarkModePreview ? darkCard : .white)
                         .frame(height: 96)
+                        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
 
                     VStack(spacing: 8) {
                         Image(systemName: icon)
                             .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(isSelected ? Color.warmOrange : iconColor)
+                            .foregroundStyle(isDarkModePreview ? iconColor : Color(red: 0.95, green: 0.65, blue: 0.10))
 
                         // Fake menu bars to preview the UI feel
                         VStack(spacing: 5) {
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(theme == .dark
+                                .fill(isDarkModePreview
                                       ? Color(white: 0.45)
-                                      : Color(white: 0.80))
+                                      : Color(white: 0.82))
                                 .frame(width: 56, height: 5)
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(theme == .dark
+                                .fill(isDarkModePreview
                                       ? Color(white: 0.35)
-                                      : Color(white: 0.88))
+                                      : Color(white: 0.90))
                                 .frame(width: 40, height: 4)
                         }
                     }
@@ -166,7 +168,7 @@ struct ThemeOnboardingView: View {
                 VStack(spacing: 5) {
                     Text(label)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(isDarkMode ? .white : Color.textPrimary)
+                        .foregroundStyle(isSelectedDark ? .white : Color.textPrimary)
 
                     if recommended {
                         Text(lm.t.themeRecommended)
@@ -186,7 +188,7 @@ struct ThemeOnboardingView: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(isDarkMode ? darkSurface : Color(.secondarySystemBackground))
+                    .fill(isSelectedDark ? darkSurface : Color(.secondarySystemBackground))
                     .shadow(color: isSelected ? Color.warmOrange.opacity(0.22) : Color.black.opacity(0.06),
                             radius: isSelected ? 14 : 6, x: 0, y: 4)
             )
