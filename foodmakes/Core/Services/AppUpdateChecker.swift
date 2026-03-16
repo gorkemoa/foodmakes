@@ -23,8 +23,8 @@ final class AppUpdateChecker {
 
     // MARK: - Check iTunes Lookup API
     func checkForUpdate() async {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.rivorya.foodmakes"
-        let urlString = "https://itunes.apple.com/lookup?bundleId=\(bundleID)&country=us"
+        let appleID = "6760628300"
+        let urlString = "https://itunes.apple.com/lookup?id=\(appleID)"
         guard let url = URL(string: urlString) else { return }
 
         do {
