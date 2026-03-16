@@ -53,16 +53,16 @@ protocol MealServiceProtocol {
 }
 
 // MARK: - MealService Implementation
-final class MealService: MealServiceProtocol {
+final class MealService: MealServiceProtocol, @unchecked Sendable {
 
     private let session: URLSession
 
-    init(session: URLSession = .shared) {
+    nonisolated init(session: URLSession = .shared) {
         self.session = session
     }
 
     // Fetch list of meals by category (returns summary only — no ingredients)
-    func fetchMeals(category: String) async throws -> [Meal] {
+    nonisolated func fetchMeals(category: String) async throws -> [Meal] {
         guard let url = MealEndpoint.listByCategory(category).url else {
             throw NetworkError.invalidURL
         }
@@ -87,7 +87,7 @@ final class MealService: MealServiceProtocol {
     }
 
     // Fetch full meal detail by ID
-    func fetchMealDetail(id: String) async throws -> Meal {
+    nonisolated func fetchMealDetail(id: String) async throws -> Meal {
         guard let url = MealEndpoint.detail(id: id).url else {
             throw NetworkError.invalidURL
         }
@@ -99,7 +99,7 @@ final class MealService: MealServiceProtocol {
     }
 
     // Fetch N random meals (each call returns 1 random meal from API)
-    func fetchRandomMeals(count: Int) async throws -> [Meal] {
+    nonisolated func fetchRandomMeals(count: Int) async throws -> [Meal] {
         try await withThrowingTaskGroup(of: Meal.self) { group in
             for _ in 0..<count {
                 group.addTask { [weak self] in
@@ -124,14 +124,14 @@ final class MealService: MealServiceProtocol {
     }
 
     // MARK: - Private Helpers
-    private func validateResponse(_ response: URLResponse) throws {
+    nonisolated private func validateResponse(_ response: URLResponse) throws {
         guard let http = response as? HTTPURLResponse else { return }
         guard (200..<300).contains(http.statusCode) else {
             throw NetworkError.serverError(http.statusCode)
         }
     }
 
-    private func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+    nonisolated private func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
         do {
             return try JSONDecoder().decode(type, from: data)
         } catch {

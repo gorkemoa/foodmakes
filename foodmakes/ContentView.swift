@@ -22,6 +22,12 @@ struct AppRootView: View {
                         themeManager.onboardingDone = true
                     }
                 }
+            } else if !themeManager.showcaseDone {
+                OnboardingView {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        themeManager.showcaseDone = true
+                    }
+                }
             } else {
                 RootTabView(repository: MealRepository(context: modelContext))
             }

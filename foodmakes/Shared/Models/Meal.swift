@@ -30,7 +30,7 @@ struct IngredientItem: Identifiable, Hashable, Codable {
 }
 
 // MARK: - Swipe Direction
-enum SwipeDirection {
+enum SwipeDirection: Equatable, Sendable {
     case left   // Disliked
     case right  // Liked (Try List)
 }

@@ -13,9 +13,9 @@ final class DislikedViewModel {
     let repository: MealRepository
     private let service: MealService
 
-    init(repository: MealRepository, service: MealService = MealService()) {
+    init(repository: MealRepository) {
         self.repository = repository
-        self.service = service
+        self.service = MealService()
     }
 
     var filtered: [PersistedDislikedMeal] {

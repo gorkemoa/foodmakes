@@ -21,10 +21,10 @@ final class MealDetailViewModel {
     private let repository: MealRepository
     private let service: MealService
 
-    init(meal: Meal, repository: MealRepository, service: MealService = MealService()) {
+    init(meal: Meal, repository: MealRepository) {
         self.meal = meal
         self.repository = repository
-        self.service = service
+        self.service = MealService()
         refreshStatus()
     }
 

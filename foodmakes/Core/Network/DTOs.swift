@@ -49,7 +49,7 @@ struct MealDetailDTO: Decodable {
     let strIngredient20: String?; let strMeasure20: String?
 
     // MARK: - Parse to domain model
-    func toDomain() -> Meal {
+    nonisolated func toDomain() -> Meal {
         let rawPairs: [(String?, String?)] = [
             (strIngredient1, strMeasure1), (strIngredient2, strMeasure2),
             (strIngredient3, strMeasure3), (strIngredient4, strMeasure4),

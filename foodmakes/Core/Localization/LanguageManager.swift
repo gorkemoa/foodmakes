@@ -188,6 +188,21 @@ struct Translations {
     let updateCurrentVersion: String     // "Current: %@"
     let updateNow: String
     let updateLater: String
+
+    // Onboarding Slides (5 slides)
+    let onboardSlide1Title: String
+    let onboardSlide1Sub: String
+    let onboardSlide2Title: String
+    let onboardSlide2Sub: String
+    let onboardSlide3Title: String
+    let onboardSlide3Sub: String
+    let onboardSlide4Title: String
+    let onboardSlide4Sub: String
+    let onboardSlide5Title: String
+    let onboardSlide5Sub: String
+    let onboardGetStarted: String
+    let onboardNext: String
+    let onboardSkip: String
 }
 
 // MARK: - Language Manager
@@ -353,7 +368,20 @@ private let englishTranslations = Translations(
     updateAvailableMessage: "Version %@ is now available.",
     updateCurrentVersion:   "You have version %@",
     updateNow:              "Update Now",
-    updateLater:            "Later"
+    updateLater:            "Later",
+    onboardSlide1Title:     "Discover New Meals",
+    onboardSlide1Sub:       "Swipe through hundreds of recipes from around the world. Your next favourite is one swipe away.",
+    onboardSlide2Title:     "Swipe Right to Save",
+    onboardSlide2Sub:       "Like a meal? Swipe right and it lands in your personal Try List, ready whenever you are.",
+    onboardSlide3Title:     "Swipe Left to Skip",
+    onboardSlide3Sub:       "Not feeling it? Swipe left and we'll show you something better. No meal is here forever.",
+    onboardSlide4Title:     "Plan Your Week",
+    onboardSlide4Sub:       "Add meals to your weekly plan and get timely reminders so you never miss a home-cooked meal.",
+    onboardSlide5Title:     "Recipes in Your Language",
+    onboardSlide5Sub:       "Everything translates to your language, on-device, privately. No internet needed after download.",
+    onboardGetStarted:      "Get Started",
+    onboardNext:            "Next",
+    onboardSkip:            "Skip"
 )
 
 private let turkishTranslations = Translations(
@@ -475,7 +503,20 @@ private let turkishTranslations = Translations(
     updateAvailableMessage: "%@ sürümü kullanılabilir.",
     updateCurrentVersion:   "Mevcut sürüm: %@",
     updateNow:              "Güncelle",
-    updateLater:            "Sonra"
+    updateLater:            "Sonra",
+    onboardSlide1Title:     "Yeni Yemekler Keşfet",
+    onboardSlide1Sub:       "Dünyanın dört bir yanından yüzlerce tarif arasında gezin. Favorin bir kaydırmada.",
+    onboardSlide2Title:     "Kaydetmek İçin Sağa Kaydır",
+    onboardSlide2Sub:       "Beğendin mi? Sağa kaydır ve yemek Dene Listenize eklensin, istediğinde hazır olsun.",
+    onboardSlide3Title:     "Geçmek İçin Sola Kaydır",
+    onboardSlide3Sub:       "İstemiyorsan? Sola kaydır, sana daha iyisini gösterelim. Hiçbir yemek burada sonsuza kalmaz.",
+    onboardSlide4Title:     "Haftanı Planla",
+    onboardSlide4Sub:       "Yemekleri haftalık planına ekle, zamanında hatırlatıcı al. Ev yemeklerini hiç kaçırma.",
+    onboardSlide5Title:     "Tarifler Senin Dilinde",
+    onboardSlide5Sub:       "Her şey dilini çevirilir, cihazında, gizlice. İndirdikten sonra internete gerek yok.",
+    onboardGetStarted:      "Başla",
+    onboardNext:            "İleri",
+    onboardSkip:            "Geç"
 )
 
 private let spanishTranslations = Translations(
@@ -597,7 +638,20 @@ private let spanishTranslations = Translations(
     updateAvailableMessage: "La versión %@ ya está disponible.",
     updateCurrentVersion:   "Tienes la versión %@",
     updateNow:              "Actualizar Ahora",
-    updateLater:            "Después"
+    updateLater:            "Después",
+    onboardSlide1Title:     "Descubre Nuevas Comidas",
+    onboardSlide1Sub:       "Desliza entre cientos de recetas de todo el mundo. Tu próxima favorita está a un deslizamiento.",
+    onboardSlide2Title:     "Desliza a la Derecha para Guardar",
+    onboardSlide2Sub:       "¿Te gusta? Desliza a la derecha y se guarda en tu lista, lista cuando quieras.",
+    onboardSlide3Title:     "Desliza a la Izquierda para Saltar",
+    onboardSlide3Sub:       "¿No te convence? Desliza a la izquierda y te mostraremos algo mejor.",
+    onboardSlide4Title:     "Planifica tu Semana",
+    onboardSlide4Sub:       "Añade comidas a tu plan semanal y recibe recordatorios. Nunca más te pierdas una comida casera.",
+    onboardSlide5Title:     "Recetas en tu Idioma",
+    onboardSlide5Sub:       "Todo se traduce a tu idioma, en el dispositivo, sin privacidad comprometida.",
+    onboardGetStarted:      "Empezar",
+    onboardNext:            "Siguiente",
+    onboardSkip:            "Omitir"
 )
 
 private let frenchTranslations = Translations(
@@ -719,7 +773,20 @@ private let frenchTranslations = Translations(
     updateAvailableMessage: "La version %@ est disponible.",
     updateCurrentVersion:   "Vous avez la version %@",
     updateNow:              "Mettre à Jour",
-    updateLater:            "Plus tard"
+    updateLater:            "Plus tard",
+    onboardSlide1Title:     "Découvrez de Nouveaux Plats",
+    onboardSlide1Sub:       "Faites défiler des centaines de recettes du monde entier. Votre prochain favori est à un glissement.",
+    onboardSlide2Title:     "Glissez à Droite pour Garder",
+    onboardSlide2Sub:       "Un plat vous plaît ? Glissez à droite, il rejoint votre liste perso, prêt quand vous voulez.",
+    onboardSlide3Title:     "Glissez à Gauche pour Passer",
+    onboardSlide3Sub:       "Pas envie ? Glissez à gauche et on vous montrera mieux. Rien ne reste éternellement.",
+    onboardSlide4Title:     "Planifiez votre Semaine",
+    onboardSlide4Sub:       "Ajoutez des plats à votre plan et recevez des rappels. Ne ratez plus un repas fait maison.",
+    onboardSlide5Title:     "Recettes dans votre Langue",
+    onboardSlide5Sub:       "Tout se traduit dans votre langue, sur l'appareil, en toute confidentialité.",
+    onboardGetStarted:      "Commencer",
+    onboardNext:            "Suivant",
+    onboardSkip:            "Passer"
 )
 
 private let italianTranslations = Translations(
@@ -841,5 +908,18 @@ private let italianTranslations = Translations(
     updateAvailableMessage: "La versione %@ è disponibile.",
     updateCurrentVersion:   "Hai la versione %@",
     updateNow:              "Aggiorna Ora",
-    updateLater:            "Più tardi"
+    updateLater:            "Più tardi",
+    onboardSlide1Title:     "Scopri Nuovi Pasti",
+    onboardSlide1Sub:       "Scorri tra centinaia di ricette da tutto il mondo. Il tuo prossimo preferito è a un tocco.",
+    onboardSlide2Title:     "Scorri a Destra per Salvare",
+    onboardSlide2Sub:       "Ti piace? Scorri a destra e finisce nella tua lista, pronto quando vuoi.",
+    onboardSlide3Title:     "Scorri a Sinistra per Saltare",
+    onboardSlide3Sub:       "Non ti convince? Scorri a sinistra e ti mostremo qualcosa di meglio.",
+    onboardSlide4Title:     "Pianifica la tua Settimana",
+    onboardSlide4Sub:       "Aggiungi pasti al piano settimanale e ricevi promemoria. Mai più un pasto casalingo perso.",
+    onboardSlide5Title:     "Ricette nella tua Lingua",
+    onboardSlide5Sub:       "Tutto si traduce nella tua lingua, sul dispositivo, in privato. Nessuna connessione necessaria.",
+    onboardGetStarted:      "Inizia",
+    onboardNext:            "Avanti",
+    onboardSkip:            "Salta"
 )

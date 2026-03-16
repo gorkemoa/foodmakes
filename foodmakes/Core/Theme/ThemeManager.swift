@@ -45,6 +45,13 @@ final class ThemeManager {
         set { UserDefaults.standard.set(newValue, forKey: onboardingKey) }
     }
 
+    /// False on first launch — triggers the feature showcase onboarding
+    private let showcaseKey = "fm_showcase_done"
+    var showcaseDone: Bool {
+        get { UserDefaults.standard.bool(forKey: showcaseKey) }
+        set { UserDefaults.standard.set(newValue, forKey: showcaseKey) }
+    }
+
     private init() {
         if let saved = UserDefaults.standard.string(forKey: "fm_theme_preference"),
            let pref = AppThemePreference(rawValue: saved) {
