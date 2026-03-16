@@ -59,7 +59,7 @@ struct SettingsView: View {
                 .frame(width: 52, height: 52)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 3) {
-                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "FoodMakes")
+                Text(lm.t.appName)
                     .font(.system(size: 15, weight: .bold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)

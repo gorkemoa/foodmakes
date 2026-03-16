@@ -34,6 +34,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
 // MARK: - All UI Strings
 struct Translations {
+    let appName: String
     // Home
     let appTagline: String
     let mealsLeft: String        // used as suffix: "12 kaldı"
@@ -250,6 +251,7 @@ private func translations(for lang: AppLanguage) -> Translations {
 }
 
 private let englishTranslations = Translations(
+    appName:                "Food Recipes",
     appTagline:             "swipe right to save  ·  left to skip",
     mealsLeft:              "left",
     skip:                   "Skip",
@@ -385,6 +387,7 @@ private let englishTranslations = Translations(
 )
 
 private let turkishTranslations = Translations(
+    appName:                "Yemek Tarifleri",
     appTagline:             "kaydet için sağa  ·  geç için sola kaydır",
     mealsLeft:              "kaldı",
     skip:                   "Geç",
@@ -520,6 +523,7 @@ private let turkishTranslations = Translations(
 )
 
 private let spanishTranslations = Translations(
+    appName:                "Recetas de Cocina",
     appTagline:             "derecha guardar  ·  izquierda omitir",
     mealsLeft:              "restantes",
     skip:                   "Omitir",
@@ -655,6 +659,7 @@ private let spanishTranslations = Translations(
 )
 
 private let frenchTranslations = Translations(
+    appName:                "Recettes de Cuisine",
     appTagline:             "glisser à droite pour garder  ·  à gauche pour passer",
     mealsLeft:              "restants",
     skip:                   "Passer",
@@ -790,6 +795,7 @@ private let frenchTranslations = Translations(
 )
 
 private let italianTranslations = Translations(
+    appName:                "Ricette di Cucina",
     appTagline:             "scorri a destra per salvare  ·  a sinistra per saltare",
     mealsLeft:              "rimanenti",
     skip:                   "Salta",
