@@ -132,19 +132,36 @@ struct SettingsView: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.blue)
-                        Text("Çeviri sistemi nasıl çalışır?")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(.secondary)
+                        ZStack {
+                            Circle()
+                                .fill(Color.blue.opacity(0.12))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "info.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.blue)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(lm.t.translationBannerLabel)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.primary)
+                            Text(lm.t.translationBannerHint)
+                                .font(.system(size: 11))
+                                .foregroundStyle(Color.blue.opacity(0.8))
+                        }
                         Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.tertiary)
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Color.blue)
                     }
                     .padding(12)
-                    .background(Color.blue.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color.blue.opacity(0.06))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .strokeBorder(Color.blue.opacity(0.18), lineWidth: 1)
+                            )
+                    )
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                 }

@@ -101,6 +101,18 @@ struct Translations {
     // Language Picker
     let language: String
     let languageSub: String
+    let translationBannerLabel: String
+    let translationBannerHint: String
+    // Translation Info Sheet
+    let translationInfoTitle: String
+    let translationInfoDesc: String
+    let translationInfoStep1Title: String
+    let translationInfoStep1Body: String
+    let translationInfoStep2Title: String
+    let translationInfoStep2Body: String
+    let translationInfoStep3Title: String
+    let translationInfoStep3Body: String
+    let translationInfoDismiss: String
 
     // Tab Labels
     let tabDiscover: String
@@ -305,6 +317,17 @@ private let englishTranslations = Translations(
     toastAllReset:          "All data reset ✓",
     language:               "Language",
     languageSub:            "App display language",
+    translationBannerLabel: "How does the translation system work?",
+    translationBannerHint:  "Tap to see how it works ↑",
+    translationInfoTitle:   "Recipes in Your Language",
+    translationInfoDesc:    "Using Apple's latest technology, we translate recipes instantly. Completely private and on-device.",
+    translationInfoStep1Title: "Download Once",
+    translationInfoStep1Body:  "After downloading the language pack once, no internet is needed.",
+    translationInfoStep2Title: "Privacy First",
+    translationInfoStep2Body:  "Translations never leave your device — everything stays local.",
+    translationInfoStep3Title: "Lightning Fast",
+    translationInfoStep3Body:  "Powered by the AI chip, recipes translate in milliseconds.",
+    translationInfoDismiss: "Got it!",
     tabDiscover:            "Discover",
     tabTryList:             "Liked",
     tabDisliked:            "Disliked",
@@ -441,6 +464,17 @@ private let turkishTranslations = Translations(
     toastAllReset:          "Tüm veriler sıfırlandı ✓",
     language:               "Dil",
     languageSub:            "Uygulama görüntüleme dili",
+    translationBannerLabel: "Çeviri sistemi nasıl çalışır?",
+    translationBannerHint:  "Görmek için dokun ↑",
+    translationInfoTitle:   "Tarifler Artık Türkçe!",
+    translationInfoDesc:    "Apple'ın en yeni teknolojisiyle tarifleri anında çeviriyoruz. Tamamen gizli, cihazında gerçekleşir.",
+    translationInfoStep1Title: "Bir Kez İndir",
+    translationInfoStep1Body:  "Dil paketini bir kez indirdikten sonra internet bağlantısına gerek yok.",
+    translationInfoStep2Title: "Gizlilik Önce",
+    translationInfoStep2Body:  "Çeviriler hiçbir sunucuya gönderilmez, her şey cihazında kalır.",
+    translationInfoStep3Title: "Yüksek Hız",
+    translationInfoStep3Body:  "Yapay zeka çipi sayesinde tarifler milisaniyeler içinde çevrilir.",
+    translationInfoDismiss: "Anladım!",
     tabDiscover:            "Keşfet",
     tabTryList:             "Beğendiklerim",
     tabDisliked:            "Beğenmediklerim",
@@ -577,6 +611,17 @@ private let spanishTranslations = Translations(
     toastAllReset:          "Todos los datos restablecidos ✓",
     language:               "Idioma",
     languageSub:            "Idioma de la aplicación",
+    translationBannerLabel: "¿Cómo funciona el sistema de traducción?",
+    translationBannerHint:  "Toca para ver cómo funciona ↑",
+    translationInfoTitle:   "¡Recetas en Español!",
+    translationInfoDesc:    "Con la última tecnología de Apple traducimos recetas al instante. Totalmente privado y en tu dispositivo.",
+    translationInfoStep1Title: "Descarga Una Vez",
+    translationInfoStep1Body:  "Tras descargar el paquete de idioma, no necesitas internet.",
+    translationInfoStep2Title: "Privacidad Primero",
+    translationInfoStep2Body:  "Las traducciones nunca salen de tu dispositivo — todo es local.",
+    translationInfoStep3Title: "Ultra Rápido",
+    translationInfoStep3Body:  "Con el chip de IA, las recetas se traducen en milisegundos.",
+    translationInfoDismiss: "¡Entendido!",
     tabDiscover:            "Descubrir",
     tabTryList:             "Me Gusta",
     tabDisliked:            "No Me Gusta",
@@ -713,6 +758,17 @@ private let frenchTranslations = Translations(
     toastAllReset:          "Toutes les données réinitialisées ✓",
     language:               "Langue",
     languageSub:            "Langue d'affichage",
+    translationBannerLabel: "Comment fonctionne le système de traduction ?",
+    translationBannerHint:  "Appuyez pour voir comment ça marche ↑",
+    translationInfoTitle:   "Recettes en Français !",
+    translationInfoDesc:    "Grâce à la dernière technologie d'Apple, nous traduisons les recettes instantanément. Totalement privé et sur votre appareil.",
+    translationInfoStep1Title: "Téléchargez Une Fois",
+    translationInfoStep1Body:  "Après avoir téléchargé le pack de langue, aucune connexion internet n'est nécessaire.",
+    translationInfoStep2Title: "La Vie Privée d'Abord",
+    translationInfoStep2Body:  "Les traductions ne quittent jamais votre appareil — tout reste local.",
+    translationInfoStep3Title: "Ultra Rapide",
+    translationInfoStep3Body:  "Grâce au puce IA, les recettes sont traduites en quelques ms.",
+    translationInfoDismiss: "Compris !",
     tabDiscover:            "Découvrir",
     tabTryList:             "J'aime",
     tabDisliked:            "Pas aimé",
@@ -849,6 +905,17 @@ private let italianTranslations = Translations(
     toastAllReset:          "Tutti i dati reimpostati ✓",
     language:               "Lingua",
     languageSub:            "Lingua dell'app",
+    translationBannerLabel: "Come funziona il sistema di traduzione?",
+    translationBannerHint:  "Tocca per vedere come funziona ↑",
+    translationInfoTitle:   "Ricette in Italiano!",
+    translationInfoDesc:    "Con l'ultima tecnologia Apple traduciamo le ricette all'istante. Completamente privato e sul tuo dispositivo.",
+    translationInfoStep1Title: "Scarica Una Volta",
+    translationInfoStep1Body:  "Dopo aver scaricato il pacchetto lingua, non serve la connessione internet.",
+    translationInfoStep2Title: "Privacy Prima di Tutto",
+    translationInfoStep2Body:  "Le traduzioni non lasciano mai il tuo dispositivo — tutto è locale.",
+    translationInfoStep3Title: "Ultra Veloce",
+    translationInfoStep3Body:  "Grazie al chip AI, le ricette sono tradotte in millisecondi.",
+    translationInfoDismiss: "Capito!",
     tabDiscover:            "Scopri",
     tabTryList:             "Mi piace",
     tabDisliked:            "Non mi piace",
