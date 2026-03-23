@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 import UserNotifications
 import GoogleMobileAds
+import AppTrackingTransparency
+import AdSupport
 
 @main
 struct foodmakesApp: App {
@@ -38,6 +40,13 @@ struct foodmakesApp: App {
             AppRootView()
                 .modelContainer(container)
                 .task {
+                    // Request tracking authorization for App Store Guidelines 5.1.2(i)
+                    if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
+                        // Small delay to ensure the app is in the active scene state
+                        try? await Task.sleep(nanoseconds: 1_000_000_000)
+                        await ATTrackingManager.requestTrackingAuthorization()
+                    }
+
                     // Increment launch counter and trigger rating prompt if needed
                     AppRatingService.shared.onAppLaunched()
 

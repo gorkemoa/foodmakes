@@ -20,6 +20,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3600325889588673~9864301434</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads and provide a better experience.</string>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>To send you meal plan reminders and daily recipe suggestions.</string>
 	<key>UIApplicationSceneManifest</key>

@@ -408,11 +408,10 @@ private struct IngredientRow: View {
                            color: Color.textPrimary,
                            fixedVertical: true)
             Spacer(minLength: 8)
-            Text(item.measure)
-                .font(.system(size: 13))
-                .foregroundStyle(Color.textSecondary)
-                .multilineTextAlignment(.trailing)
-                .fixedSize(horizontal: false, vertical: true)
+            TranslatedText(original: item.measure,
+                           font: .system(size: 13),
+                           color: Color.textSecondary,
+                           fixedVertical: true)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)

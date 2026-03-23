@@ -241,10 +241,10 @@ struct MealDetailSheet: View {
                                        color: Color.textPrimary,
                                        fixedVertical: true)
                         Spacer(minLength: 8)
-                        Text(item.measure)
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.textSecondary)
-                            .multilineTextAlignment(.trailing)
+                        TranslatedText(original: item.measure,
+                                       font: .system(size: 12),
+                                       color: Color.textSecondary,
+                                       fixedVertical: true)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)

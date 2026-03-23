@@ -1,10 +1,7 @@
 import SwiftUI
-import Translation
 
 struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
-    @State private var needsDownload: Set<String> = []
-    @State private var showTranslationInfo = false
     private var lm: LanguageManager { LanguageManager.shared }
     private var themeManager: ThemeManager { ThemeManager.shared }
 
@@ -42,11 +39,6 @@ struct SettingsView: View {
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.showToast)
             .navigationTitle(lm.t.settingsTitle)
             .navigationBarTitleDisplayMode(.large)
-            .sheet(isPresented: $showTranslationInfo) {
-                TranslationInfoView()
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-            }
         }
     }
 
@@ -126,47 +118,6 @@ struct SettingsView: View {
     private var languageSection: some View {
         SettingsSection(title: lm.t.language, icon: "globe") {
             VStack(spacing: 0) {
-                // Info Banner
-                Button {
-                    showTranslationInfo = true
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                } label: {
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.blue.opacity(0.12))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "info.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.blue)
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(lm.t.translationBannerLabel)
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.primary)
-                            Text(lm.t.translationBannerHint)
-                                .font(.system(size: 11))
-                                .foregroundStyle(Color.blue.opacity(0.8))
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.up")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(Color.blue)
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color.blue.opacity(0.06))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .strokeBorder(Color.blue.opacity(0.18), lineWidth: 1)
-                            )
-                    )
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                }
-                .buttonStyle(.plain)
-
                 ForEach(Array(AppLanguage.allCases.enumerated()), id: \.1.rawValue) { idx, lang in
                     HStack(spacing: 0) {
                         // Language selection button
@@ -197,27 +148,11 @@ struct SettingsView: View {
                                 }
                             }
                             .padding(.leading, 16)
-                            .padding(.trailing, lang != .english && needsDownload.contains(lang.rawValue) ? 8 : 16)
+                            .padding(.trailing, 16)
                             .padding(.vertical, 13)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-
-                        // Download button — only shown when pack isn’t installed
-                        if lang != .english && needsDownload.contains(lang.rawValue) {
-                            Button {
-                                TranslationDownloadManager.shared.forcePrompt(for: lang.rawValue)
-                            } label: {
-                                Image(systemName: "icloud.and.arrow.down")
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 44, height: 44)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 8)
-                            .transition(.scale.combined(with: .opacity))
-                        }
                     }
                     if idx < AppLanguage.allCases.count - 1 {
                         Divider().padding(.leading, 64)
@@ -226,26 +161,7 @@ struct SettingsView: View {
             }
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            // Re-check badges when app opens or a download completes
-            .task(id: TranslationDownloadManager.shared.downloadRevision) {
-                await checkLanguageAvailability()
-            }
         }
-    }
-
-    private func checkLanguageAvailability() async {
-        let availability = LanguageAvailability()
-        var toDownload: Set<String> = []
-        for lang in AppLanguage.allCases where lang != .english {
-            let status = await availability.status(
-                from: Locale.Language(identifier: "en"),
-                to: Locale.Language(identifier: lang.rawValue)
-            )
-            if case .supported = status {
-                toDownload.insert(lang.rawValue)
-            }
-        }
-        needsDownload = toDownload
     }
 
     // MARK: - Notifications Section

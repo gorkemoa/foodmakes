@@ -1,62 +1,69 @@
 import Foundation
 import SwiftUI
-import Translation
 
-// MARK: - Download Coordinator
-/// Controls when the Apple Translation download sheet appears.
-/// Rate-limited to once per session and at most once per 24 hours per language.
-@MainActor
-@Observable
-final class TranslationDownloadManager {
-    static let shared = TranslationDownloadManager()
+// MARK: - Google Translate Service
+/// A free wrapper for Google Translate using the translate_a/single endpoint.
+actor GoogleTranslateService {
+    static let shared = GoogleTranslateService()
 
-    /// Set by coordinator or Settings; observed by RootTabView's .translationTask
-    var pendingConfig: TranslationSession.Configuration?
-    /// Increments when a download completes; causes TranslatedText to retry
-    var downloadRevision: Int = 0
+    private var cache: [String: String] = [:]
+    private let persistKey = "fm_translation_cache_google_v1"
 
-    private var promptedThisSession = false
-    private let cooldownSeconds: TimeInterval = 60 * 60 * 24 // 24 hours
-
-    private init() {}
-
-    /// Called from TranslatedText when pack is missing. Shows prompt at most once
-    /// per session and once per 24 hours per language.
-    func promptIfAppropriate(for langCode: String) {
-        guard !promptedThisSession else { return }
-        let key = "fm_tl_prompt_\(langCode)"
-        let last = UserDefaults.standard.double(forKey: key)
-        if last > 0, Date().timeIntervalSince1970 - last < cooldownSeconds { return }
-        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
-        promptedThisSession = true
-        pendingConfig = TranslationSession.Configuration(
-            source: Locale.Language(identifier: "en"),
-            target: Locale.Language(identifier: langCode)
-        )
-    }
-
-    /// Called from Settings download button — bypasses cooldown.
-    func forcePrompt(for langCode: String) {
-        pendingConfig = nil // Reset first to ensure the bottom sheet can re-trigger
-        // IMPORTANT: We must NOT set promptedThisSession to true here, 
-        // as that might block future automatic prompts if the user cancels this one.
-        // Also, we use a slightly longer delay to ensure SwiftUI notices the 'nil' state.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.pendingConfig = TranslationSession.Configuration(
-                source: Locale.Language(identifier: "en"),
-                target: Locale.Language(identifier: langCode)
-            )
+    private init() {
+        if let saved = UserDefaults.standard.dictionary(forKey: persistKey) as? [String: String] {
+            cache = saved
         }
     }
 
-    /// Called when RootTabView's .translationTask finishes.
-    func onDownloadCompleted() {
-        pendingConfig = nil
-        downloadRevision += 1
+    func translate(text: String, target: String) async -> String? {
+        let key = "\(target):\(text)"
+        if let hit = cache[key] { return hit }
+
+        // Final check in legacy cache to avoid re-translating already translated items
+        if let legacyHit = await TranslationService.shared.cached(key: key) {
+            cache[key] = legacyHit
+            UserDefaults.standard.set(cache, forKey: persistKey)
+            return legacyHit
+        }
+
+        guard let url = URL(string: "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=\(target)&dt=t&q=\(text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") else {
+            return nil
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let json = try JSONSerialization.jsonObject(with: data) as? [Any],
+               let firstPart = json.first as? [Any] {
+                
+                var resultArr: [String] = []
+                for part in firstPart {
+                    if let innerPart = part as? [Any], let translatedText = innerPart.first as? String {
+                        resultArr.append(translatedText)
+                    }
+                }
+                
+                let result = resultArr.joined()
+                
+                if !result.isEmpty {
+                    cache[key] = result
+                    // Always save to disk immediately to persist
+                    UserDefaults.standard.set(cache, forKey: persistKey)
+                    return result
+                }
+            }
+        } catch {
+            print("Google Translate error: \(error)")
+        }
+        return nil
+    }
+
+    func clearCache() {
+        cache.removeAll()
+        UserDefaults.standard.removeObject(forKey: persistKey)
     }
 }
 
-// MARK: - Translation Cache (Apple Translation)
+// MARK: - Translation Cache (Legacy Shim for compatibility if needed)
 actor TranslationService {
     static let shared = TranslationService()
 
@@ -92,8 +99,7 @@ struct TranslatedText: View {
     var fixedVertical: Bool = false
 
     @State private var translated: String?
-    @State private var translationConfig: TranslationSession.Configuration?
-    @State private var isDownloading = false
+    @State private var isTranslating = false
 
     private var lm: LanguageManager { LanguageManager.shared }
 
@@ -122,80 +128,43 @@ struct TranslatedText: View {
             }
             .animation(.easeInOut(duration: 0.25), value: translated)
 
-            // Download Status Indicator (Compact)
-            if isDownloading {
-                downloadingIndicator
+            // Translation Status Indicator
+            if isTranslating {
+                translatingIndicator
             }
         }
-        // Re-run when language changes OR a download just finished (downloadRevision bumps)
-        .task(id: "\(lm.current.rawValue):\(original):\(TranslationDownloadManager.shared.downloadRevision)") {
+        // Re-run when language changes or original text changes
+        .task(id: "\(lm.current.rawValue):\(original)") {
             translated = nil
-            translationConfig = nil
-            isDownloading = false
+            isTranslating = false
             
             guard lm.current != .english else { return }
             let langCode = lm.current.rawValue
-            let key = "\(langCode):\(original)"
             
-            if let hit = await TranslationService.shared.cached(key: key) {
-                translated = hit
-                return
-            }
-            
-            // Check if the language pack is already on-device
-            let availability = LanguageAvailability()
-            let status = await availability.status(
-                from: Locale.Language(identifier: "en"),
-                to: Locale.Language(identifier: langCode)
-            )
-            
-            switch status {
-            case .installed:
-                // Pack ready — translate silently (no dialog)
-                translationConfig = TranslationSession.Configuration(
-                    source: Locale.Language(identifier: "en"),
-                    target: Locale.Language(identifier: langCode)
-                )
-            case .supported:
-                // Pack not yet downloaded — notify coordinator (rate-limited dialog)
-                isDownloading = true
-                await MainActor.run {
-                    TranslationDownloadManager.shared.promptIfAppropriate(for: langCode)
-                }
-            default:
-                break // unsupported — show original
-            }
-        }
-        .translationTask(translationConfig) { session in
-            guard translated == nil else { return }
-            do {
-                let response = try await session.translate(original)
-                let result = response.targetText.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !result.isEmpty else { return }
+            isTranslating = true
+            if let result = await GoogleTranslateService.shared.translate(text: original, target: langCode) {
                 translated = result
-                let key = "\(lm.current.rawValue):\(original)"
-                await TranslationService.shared.store(key: key, value: result)
-            } catch {
-                print("Apple Translation error: \(error)")
             }
+            isTranslating = false
         }
     }
 
-    private var downloadingIndicator: some View {
+    private var translatingIndicator: some View {
         HStack(spacing: 4) {
             ProgressView()
                 .controlSize(.mini)
                 .tint(.warmOrange)
-            Image(systemName: "icloud.and.arrow.down")
+            Image(systemName: " globe")
                 .font(.system(size: 10))
                 .foregroundStyle(.warmOrange)
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(Color(.secondarySystemBackground).opacity(0.8))
-        .clipShape(RoundedRectangle(cornerRadius: AppRadius.xs))
-        .padding(.trailing, -30) // Offset so it doesn't overlap text too much
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.trailing, -30)
         .transition(.opacity.combined(with: .scale))
     }
 }
+
 
